@@ -1,139 +1,149 @@
-using System.IO;
+﻿using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace LevelEditor
 {
-    public class LevelEditor : EditorWindow
+    public static class LevelEditor
     {
-        private static SerializedObject _currentLevelBlock;
+        private enum Tool
+        {
+            Bounds,
+            Gates,
+            Select,
+            Geometry,
+            Objects,
+        }
         
-        private static EditorWindow _window;
-        private static PrefabStage _stage;
-        private static string[] _prefabs;
-        private static int _levelIndex;
-        private static bool _skybox;
-        private static string _priorScene;
-        private static bool _switchingLevel;
-
-        private static readonly string LEVEL_DIRECTORY = Application.dataPath + "/Level Blocks/";
         private const string LEVEL_ASSET_PATH = "Assets/Level Blocks/";
-
-        [MenuItem("Level Editor/Open")]
-        private static void OpenEditor()
-        {
-            _window = GetWindow<LevelEditor>("Level Editor");
-
-            if (!Directory.Exists(LEVEL_DIRECTORY))
-            {
-                Directory.CreateDirectory(LEVEL_DIRECTORY);
-            }
-
-            ReloadLevels();
-        }
-
-        private static void ReloadLevels()
-        {
-            _prefabs = Directory.GetFiles(LEVEL_DIRECTORY, "*.prefab");
-            for (var index = 0; index < _prefabs.Length; index++)
-            {
-                _prefabs[index] = Path.GetFileNameWithoutExtension(_prefabs[index]);
-            }
-            
-            if (_prefabs.Length == 0 && _currentLevelBlock == null)
-            {
-                return;
-            }
-
-            _levelIndex = 0;
-            _priorScene = SceneManager.GetActiveScene().path;
-            _skybox = SceneView.lastActiveSceneView.sceneViewState.showSkybox;
-            LoadLevel();
-            SceneView.lastActiveSceneView.sceneViewState.showSkybox = false;
-        }
         
-        private void OnEnable()
+        private static SerializedObject _currentLevelBlock;
+        private static GameObject _levelRoot;
+
+        private static SerializedObject[] _components;
+
+        private static Tool _currentTool;
+        
+        private static GameObject LevelRoot
         {
-            SceneView.duringSceneGui += OnSceneGUI;
-            EditorSceneManager.sceneClosed += _ =>
+            get
             {
-                if (!_switchingLevel)
+                if (!_levelRoot)
                 {
-                    _window.Close();
+                    var stage = PrefabStageUtility.GetCurrentPrefabStage();
+                    _levelRoot = stage.prefabContentsRoot;
                 }
-            };
-        }
 
-        private void OnDestroy()
-        {
-            SceneView.duringSceneGui -= OnSceneGUI;
-            if (!string.IsNullOrEmpty(_priorScene))
-            {
-                EditorSceneManager.OpenScene(_priorScene);
+                return _levelRoot;
             }
-            SceneView.lastActiveSceneView.sceneViewState.showSkybox = _skybox;
+            set => _levelRoot = value;
         }
-
-        private void OnGUI()
+        private static Transform LevelTransform => LevelRoot.transform;
+        public static bool HasLevel => _currentLevelBlock != null;
+        
+        public static string LevelName
         {
-            const float yOffset = 10f;
-            const float yOffsetCenter = 200f;
-            const float width = 125f;
-            const float indexWidth = 50f;
-            const float gap = 5f;
-            var centerX =  EditorGUIUtility.currentViewWidth * 0.5f;
-            var nameWidth = EditorGUIUtility.currentViewWidth - (gap * 4 + indexWidth * 2);
-
-            var hasLevels = _prefabs is { Length: > 0 };
-            
-            var x = gap;
-            GUI.Button(new Rect(x, yOffset, indexWidth, 20), "Prev");
-            x += indexWidth + gap;
-            GUI.enabled = hasLevels;
-            GUI.TextField(new Rect(x, yOffset, nameWidth, 20), "");
-            GUI.enabled = true;
-            x += nameWidth + gap;
-            GUI.Button(new Rect(x, yOffset, indexWidth, 20), "Next");
-
-            if (hasLevels)
+            get => LevelRoot.name;
+            set
             {
-                return;
-            }
-            
-            GUI.Label(new Rect(centerX - width * 0.5f, yOffsetCenter - 20, width, 20), "No levels available",
-                new GUIStyle
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    normal = new GUIStyleState { textColor = Color.white }
-                });
-            var create = GUI.Button(new Rect(centerX - width * 0.5f, yOffsetCenter, width, 20), "Create Level");
-            if (create)
-            {
-                CreateLevel();
+                var oldName = LevelRoot.name;
+                LevelRoot.name = value;
+                AssetDatabase.RenameAsset(LEVEL_ASSET_PATH + oldName + ".prefab", value);
+                AssetDatabase.ForceReserializeAssets(new []{LEVEL_ASSET_PATH + value + ".prefab"});
             }
         }
         
-        private static void CreateLevel()
+        public static void OpenLevelForEditing(GameObject prefabRoot)
         {
-            var levelRoot = new GameObject($"Level {_prefabs.Length + 1}");
-            levelRoot.AddComponent<LevelBlock>();
-            PrefabUtility.SaveAsPrefabAsset(levelRoot, LEVEL_ASSET_PATH + $"Level {_prefabs.Length + 1}" + ".prefab");
-            ReloadLevels();
-        }
-
-        private static void LoadLevel()
-        {
-            _stage = PrefabStageUtility.OpenPrefab(LEVEL_ASSET_PATH + _prefabs[_levelIndex] + ".prefab");
-            var instanceRoot = _stage.openedFromInstanceRoot;
-            var levelRoot = instanceRoot.GetComponent<LevelBlock>();
-            _currentLevelBlock = new SerializedObject(levelRoot);
+            LevelRoot = prefabRoot;
+            _currentLevelBlock = prefabRoot.TryGetComponent(out LevelBlock levelBlock)
+                ? new SerializedObject(levelBlock)
+                : new SerializedObject(prefabRoot.AddComponent<LevelBlock>());
         }
         
-        private void OnSceneGUI(SceneView obj)
+        public static void ChangeSelection(GameObject selection)
         {
+            var components = selection.GetComponents<Component>();
+        }
+        
+        public static void OnGUI()
+        {
+            EditorGUILayout.LabelField("Tools");
+            _currentTool = (Tool)GUILayout.Toolbar((int)_currentTool, new []
+            {
+                EditorGUIUtility.IconContent("d_RectTool On"),
+                EditorGUIUtility.IconContent("d_ToolHandleCenter"),
+                EditorGUIUtility.IconContent("d_Grid.Default"),
+                EditorGUIUtility.IconContent("d_PreMatCube"),
+                EditorGUIUtility.IconContent("d_PreMatSphere"),
+            });
             
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Level Metadata", new GUIStyle("CN Box"));
+            _currentLevelBlock.Update();
+            {
+                var expanse = _currentLevelBlock.FindProperty("_expanse");
+                var height = _currentLevelBlock.FindProperty("_height");
+                var val = expanse.vector4Value;
+
+                EditorGUILayout.BeginHorizontal();
+                val.x = EditorGUILayout.FloatField("Left", val.x);
+                val.y = EditorGUILayout.FloatField("Right", val.y);
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
+                val.z = EditorGUILayout.FloatField("Forward", val.z);
+                val.w = EditorGUILayout.FloatField("Backwards", val.w);
+                EditorGUILayout.EndHorizontal();
+
+                height.floatValue = EditorGUILayout.FloatField("Height", height.floatValue);
+
+                val.x = Mathf.Max(val.x, 1);
+                val.y = Mathf.Max(val.y, 1);
+                val.z = Mathf.Max(val.z, 1);
+                val.w = Mathf.Max(val.w, 1);
+                height.floatValue = Mathf.Max(height.floatValue, 2);
+
+                expanse.vector4Value = val;
+            }
+            _currentLevelBlock.ApplyModifiedProperties();
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Selection", new GUIStyle("CN Box"));
+        }
+        
+        public static void OnSceneGUI(SceneView sceneView)
+        {
+            _currentLevelBlock.Update();
+            var expanse = _currentLevelBlock.FindProperty("_expanse").vector4Value;
+            var height = _currentLevelBlock.FindProperty("_height").floatValue;
+
+            var center = new Vector3(expanse.y - expanse.x, height, expanse.w - expanse.z) * 0.5f;
+            var size = new Vector3(expanse.y + expanse.x, height, expanse.w + expanse.z);
+            
+            //Draw the level Block
+            LevelEditorUtility.DrawSolidCube(center, size, 
+                new Color(1f, 1f, 0f, 0.05f),
+                new Color(1f, 1f, 0f, 0.75f));
+
+            switch (_currentTool)
+            {
+                case Tool.Bounds:
+                    LevelEditorUtility.DrawBoundsHandles(ref expanse, ref height);
+                    break;
+                case Tool.Gates:
+                    break;
+                case Tool.Select:
+                    break;
+                case Tool.Geometry:
+                    break;
+                case Tool.Objects:
+                    break;
+            }
+            
+            _currentLevelBlock.FindProperty("_expanse").vector4Value = expanse;
+            _currentLevelBlock.FindProperty("_height").floatValue = height;
+            _currentLevelBlock.ApplyModifiedProperties();
         }
     }
 }

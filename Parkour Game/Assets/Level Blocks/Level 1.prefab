@@ -44,3 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f625b7fc688045b4fa6c6eb8147adac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelBlock
+  _levelObjects: []
+  _height: 2
+  _expanse: {x: 0.7774436, y: 1, z: 1, w: 1}
+  _entryPoint: {x: 0, y: 0}
+  _exitPoint: {x: 0, y: 0}
+  references:
+    version: 2
+    RefIds: []
