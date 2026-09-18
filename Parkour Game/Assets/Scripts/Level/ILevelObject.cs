@@ -4,8 +4,8 @@ namespace Level
 {
     public interface ILevelObject
     {
+        Mesh Mesh { get; }
+        GameObject GameObject { get; }
         public void Spawn();
-        Vector2 Position { get; set; }
-        float Height { get; set; }
     }
 }

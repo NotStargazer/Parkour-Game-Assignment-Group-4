@@ -15,10 +15,32 @@ namespace LevelEditor
         private static bool _skybox;
         private static string _priorScene;
         private static bool _switchingLevel;
+        private static bool _wantsToQuit;
 
         private static readonly string LEVEL_DIRECTORY = Application.dataPath + "/Level Blocks/";
+        private static readonly string GEOMETRY_DIRECTORY = Application.dataPath + "/Editor/Geometry";
+        private static readonly string OBJECT_DIRECTORY = Application.dataPath + "/Editor/Objects";
         private const string LEVEL_ASSET_PATH = "Assets/Level Blocks/";
 
+        [InitializeOnLoadMethod]
+        private static void OnLoad()
+        {
+            EditorApplication.wantsToQuit += QuitCheck;
+        }
+        
+        //Tragically need to do this so the editor doesn't die when trying to relaunch the project
+        private static bool QuitCheck()
+        {
+            if (HasOpenInstances<LevelEditorWindow>())
+            {
+                _wantsToQuit = true;
+                _window.Close();
+                return false;
+            }
+
+            return true;
+        }
+        
         [MenuItem("Level Editor/Open")]
         private static void OpenEditor()
         {
@@ -28,6 +50,14 @@ namespace LevelEditor
             if (!Directory.Exists(LEVEL_DIRECTORY))
             {
                 Directory.CreateDirectory(LEVEL_DIRECTORY);
+            }
+            if (!Directory.Exists(GEOMETRY_DIRECTORY))
+            {
+                Directory.CreateDirectory(GEOMETRY_DIRECTORY);
+            }
+            if (!Directory.Exists(OBJECT_DIRECTORY))
+            {
+                Directory.CreateDirectory(OBJECT_DIRECTORY);
             }
         }
 
@@ -55,6 +85,7 @@ namespace LevelEditor
         
         private void OnEnable()
         {
+            Tools.hidden = true;
             var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
             _window ??= GetWindow<LevelEditorWindow>("Level Editor", inspectorType);
             ReloadLevels();
@@ -73,6 +104,13 @@ namespace LevelEditor
 
         private void OnDestroy()
         {
+            if (_wantsToQuit)
+            {
+                EditorApplication.Exit(0);
+                return;
+            }
+            
+            Tools.hidden = false;
             EditorSceneManager.sceneClosed -= SceneClosed;
             SceneView.duringSceneGui -= LevelEditor.OnSceneGUI;
             if (!string.IsNullOrEmpty(_priorScene))
@@ -142,14 +180,6 @@ namespace LevelEditor
             _stage = PrefabStageUtility.OpenPrefab(LEVEL_ASSET_PATH + _prefabs[_levelIndex] + ".prefab");
             LevelEditor.OpenLevelForEditing(_stage.prefabContentsRoot);
             _switchingLevel = false;
-        }
-
-        private void OnSelectionChange()
-        {
-            if (Selection.activeGameObject)
-            {
-                LevelEditor.ChangeSelection(Selection.activeGameObject);
-            }
         }
     }
 }
