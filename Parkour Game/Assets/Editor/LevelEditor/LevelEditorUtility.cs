@@ -296,12 +296,15 @@ namespace LevelEditor
             return go && go.TryGetComponent(out levelObject);
         }
         
-        public static Vector3 UpdatePlacement(Vector4 expanse)
+        //Short for Outline Objects
+        private static GameObject[] _oo = new GameObject[1]; 
+        
+        public static Vector3? UpdatePlacement(Vector4 expanse, ILevelObject levelObject)
         {
             var camera = SceneView.lastActiveSceneView.camera;
             var mousePos = Event.current.mousePosition;
-            mousePos = new Vector2(mousePos.x, camera.pixelHeight - mousePos.y);
-            var ray = camera.ScreenPointToRay(mousePos);
+            var flippedMousePos = new Vector2(mousePos.x, camera.pixelHeight - mousePos.y);
+            var ray = camera.ScreenPointToRay(flippedMousePos);
             var plane = new Plane(Vector3.up, Vector3.zero);
 
             Handles.color = Color.white;
@@ -313,11 +316,28 @@ namespace LevelEditor
                 point = new Vector3(Mathf.Clamp(point.x, 0.5f - expanse.x, expanse.y - 0.5f),
                     0.5f, Mathf.Clamp(point.z, 0.5f - expanse.z, expanse.w - 0.5f));
                 point = Snapping.Snap(point, EditorSnapSettings.gridSize);
-                DrawSolidCube(point, Vector3.one, new Color(0.5f, 0.9f, 1f, 0.05f), Color.deepSkyBlue);
+                Handles.color = new Color(0.75f, 0.9f, 1f, 0.35f);
+                DrawWireMesh(levelObject.Mesh, point, levelObject.Scale);
                 return point;
             }
             
             return Vector3.zero;
+        }
+
+
+        public static void DrawWireMesh(Mesh mesh, Vector3 position, Vector3 scale)
+        {
+            for (var i = 0; i < mesh.triangles.Length; i += 3)
+            {
+                var t1 = mesh.triangles[i];
+                var t2 = mesh.triangles[i + 1];
+                var t3 = mesh.triangles[i + 2];
+                Handles.DrawAAConvexPolygon(
+                    new Vector3(mesh.vertices[t1].x * scale.x, mesh.vertices[t1].y * scale.y, mesh.vertices[t1].z * scale.z) + position,
+                    new Vector3(mesh.vertices[t2].x * scale.x, mesh.vertices[t2].y * scale.y, mesh.vertices[t2].z * scale.z) + position,
+                    new Vector3(mesh.vertices[t3].x * scale.x, mesh.vertices[t3].y * scale.y, mesh.vertices[t3].z * scale.z) + position,
+                    new Vector3(mesh.vertices[t1].x * scale.x, mesh.vertices[t1].y * scale.y, mesh.vertices[t1].z * scale.z) + position);
+            }
         }
     }
 }

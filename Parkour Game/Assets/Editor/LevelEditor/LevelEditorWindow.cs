@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -10,7 +11,7 @@ namespace LevelEditor
     {
         private static EditorWindow _window;
         private static PrefabStage _stage;
-        private static string[] _prefabs;
+        private static string[] _levelPrefabNames;
         private static int _levelIndex;
         private static bool _skybox;
         private static string _priorScene;
@@ -63,13 +64,13 @@ namespace LevelEditor
 
         private static void ReloadLevels()
         {
-            _prefabs = Directory.GetFiles(LEVEL_DIRECTORY, "*.prefab");
-            for (var index = 0; index < _prefabs.Length; index++)
+            _levelPrefabNames = Directory.GetFiles(LEVEL_DIRECTORY, "*.prefab");
+            for (var index = 0; index < _levelPrefabNames.Length; index++)
             {
-                _prefabs[index] = Path.GetFileNameWithoutExtension(_prefabs[index]);
+                _levelPrefabNames[index] = Path.GetFileNameWithoutExtension(_levelPrefabNames[index]);
             }
             
-            if (_prefabs.Length == 0 && !LevelEditor.HasLevel)
+            if (_levelPrefabNames.Length == 0 && !LevelEditor.HasLevel)
             {
                 return;
             }
@@ -91,10 +92,19 @@ namespace LevelEditor
             ReloadLevels();
             
             SceneView.duringSceneGui += LevelEditor.OnSceneGUI;
+            PrefabStage.prefabStageOpened += SceneOpened;
             EditorSceneManager.sceneClosed += SceneClosed;
         }
 
-        private void SceneClosed(Scene _)
+        private static void SceneClosed(Scene _)
+        {
+            if (!_switchingLevel)
+            {
+                _window.Close();
+            }
+        }
+        
+        private void SceneOpened(PrefabStage obj)
         {
             if (!_switchingLevel)
             {
@@ -111,6 +121,7 @@ namespace LevelEditor
             }
             
             Tools.hidden = false;
+            PrefabStage.prefabStageOpened -= SceneOpened;
             EditorSceneManager.sceneClosed -= SceneClosed;
             SceneView.duringSceneGui -= LevelEditor.OnSceneGUI;
             if (!string.IsNullOrEmpty(_priorScene))
@@ -167,16 +178,26 @@ namespace LevelEditor
         
         private static void CreateLevel()
         {
-            var levelRoot = new GameObject($"Level {_prefabs.Length + 1}");
+            var levelRoot = new GameObject($"Level {_levelPrefabNames.Length + 1}");
             levelRoot.AddComponent<LevelBlock>();
-            PrefabUtility.SaveAsPrefabAsset(levelRoot, LEVEL_ASSET_PATH + $"Level {_prefabs.Length + 1}" + ".prefab");
+            PrefabUtility.SaveAsPrefabAsset(levelRoot, LEVEL_ASSET_PATH + $"Level {_levelPrefabNames.Length + 1}" + ".prefab");
             ReloadLevels();
         }
 
         private static void LoadLevel()
         {
             _switchingLevel = true;
-            _stage = PrefabStageUtility.OpenPrefab(LEVEL_ASSET_PATH + _prefabs[_levelIndex] + ".prefab");
+            _stage = PrefabStageUtility.GetCurrentPrefabStage();
+            if (!_stage)
+            {
+                _stage = PrefabStageUtility.OpenPrefab(LEVEL_ASSET_PATH + _levelPrefabNames[_levelIndex] + ".prefab");
+            }
+            else
+            {
+                _levelIndex = Array.FindIndex(_levelPrefabNames,
+                    s => s == Path.GetFileNameWithoutExtension(_stage.assetPath));
+            }
+            
             LevelEditor.OpenLevelForEditing(_stage.prefabContentsRoot);
             _switchingLevel = false;
         }

@@ -2,14 +2,12 @@
 
 namespace Level
 {
-    public class Platform : MonoBehaviour, ILevelObject
+    public class StaticGeometry : MonoBehaviour, ILevelObject
     {
         [SerializeField] private MeshRenderer _renderer;
         [SerializeField] private MeshFilter _filter;
         [SerializeField] private Vector3 _position;
         [SerializeField] private Vector3 _scale;
-        [SerializeField] private Vector3 _startPos;
-        [SerializeField] private Vector3 _endPos;
 
         public Mesh Mesh => _filter.sharedMesh;
         public Vector3 Scale => transform.localScale;

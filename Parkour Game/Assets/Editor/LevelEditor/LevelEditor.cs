@@ -29,9 +29,13 @@ namespace LevelEditor
         private static SerializedObject[] _components;
 
         private static Tool _currentTool;
+        private static int _currentGeometry;
+        private static int _currentObject;
         private static ILevelObject _currentSelection;
         private static ILevelObject[] _geometryPrefabs;
         private static ILevelObject[] _objectPrefabs;
+        private static GUIContent[] _geometryIcons;
+        private static GUIContent[] _objectIcons;
         
         private static GameObject LevelRoot
         {
@@ -70,21 +74,23 @@ namespace LevelEditor
             
             _geometryPrefabs = new ILevelObject[ga.Length];
             _objectPrefabs = new ILevelObject[oa.Length];
+            _geometryIcons = new GUIContent[ga.Length];
+            _objectIcons = new GUIContent[oa.Length];
             
             for (var i = 0; i < ga.Length; i++)
             {              
                 var name = Path.GetFileNameWithoutExtension(ga[i]);
-                _geometryPrefabs[i] = 
-                    AssetDatabase.LoadAssetAtPath<GameObject>(GEOMETRY_PATH + name + ".prefab")
-                        .GetComponent<ILevelObject>();
+                _geometryPrefabs[i] = AssetDatabase.LoadAssetAtPath<GameObject>(GEOMETRY_PATH + name + ".prefab")
+                    .GetComponent<ILevelObject>();
+                _geometryIcons[i] = new GUIContent();
             }            
             
             for (var i = 0; i < oa.Length; i++)
             {
                 var name = Path.GetFileNameWithoutExtension(oa[i]);
-                _geometryPrefabs[i] = 
-                    AssetDatabase.LoadAssetAtPath<GameObject>(OBJECT_PATH + name + ".prefab")
-                        .GetComponent<ILevelObject>();
+                _objectPrefabs[i] = AssetDatabase.LoadAssetAtPath<GameObject>(OBJECT_PATH + name + ".prefab")
+                    .GetComponent<ILevelObject>();
+                _objectIcons[i] = new GUIContent();
             }
         }
         
@@ -150,6 +156,31 @@ namespace LevelEditor
                         Mathf.Clamp(exit.vector2Value.y, 0, height.floatValue - 2));
             }
             _currentLevelBlock.ApplyModifiedProperties();
+
+            if (_currentTool == Tool.Geometry)
+            {
+                for (var i = 0; i < _geometryIcons.Length; i++)
+                {
+                    var content = _geometryIcons[i];
+                    var go = _geometryPrefabs[i].GameObject;
+                    content.image = AssetPreview.GetAssetPreview(go);
+                    content.tooltip = go.name;
+                }
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Geometry", new GUIStyle("CN Box"));
+                _currentGeometry = GUILayout.SelectionGrid(_currentGeometry, _geometryIcons, 4, GUILayout.MaxHeight(64));
+            }
+            if (_currentTool == Tool.Objects)
+            {
+                for (var i = 0; i < _objectIcons.Length; i++)
+                {
+                    var content = _objectIcons[i];
+                    var go = _objectPrefabs[i].GameObject;
+                    content.image = AssetPreview.GetAssetPreview(go);
+                    content.tooltip = go.name;
+                }
+                _currentObject = GUILayout.SelectionGrid(_currentObject, _objectIcons, 4);
+            }
             
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Selection", new GUIStyle("CN Box"));
@@ -193,26 +224,22 @@ namespace LevelEditor
             _currentLevelBlock.ApplyModifiedProperties();
         }
 
-        private static Vector3 _placementPoint;
+        private static Vector3? _placementPoint;
         
         private static void HandleGeometryTool(Vector4 expanse)
         {
-            if (Event.current.isMouse)
+            if (Event.current.isMouse && _placementPoint.HasValue)
             {
                 if (Event.current.type == EventType.MouseDown)
                 {
                     if (Event.current.keyCode == KeyCode.Mouse0)
                     {
-                        if (Event.current.control)
-                        {
-                            LevelEditorUtility.TrySelectGeometry(out _currentSelection);
-                        }
-                        else
+                        if (!LevelEditorUtility.TrySelectGeometry(out _currentSelection))
                         {
                             _currentLevelBlock.Update();
-                            var newObject = PrefabUtility.InstantiatePrefab(_geometryPrefabs[0].GameObject, _levelRoot.transform) as GameObject;
-                            newObject.name = _geometryPrefabs[0].GameObject.name;
-                            newObject.transform.position = _placementPoint;
+                            var newObject = PrefabUtility.InstantiatePrefab(_geometryPrefabs[_currentGeometry].GameObject, _levelRoot.transform) as GameObject;
+                            newObject.name = _geometryPrefabs[_currentGeometry].GameObject.name;
+                            newObject.transform.position = _placementPoint.Value;
                             Undo.RegisterCreatedObjectUndo(newObject, "Add Level Geometry");
                             var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
                             levelObjects.InsertArrayElementAtIndex(levelObjects.arraySize);
@@ -243,13 +270,12 @@ namespace LevelEditor
                             Event.current.Use();
                         }
                     }
-                    
                 }
             }
 
             if (Event.current.keyCode != KeyCode.Mouse0)
             {
-                _placementPoint = LevelEditorUtility.UpdatePlacement(expanse);
+                _placementPoint = LevelEditorUtility.UpdatePlacement(expanse, _geometryPrefabs[_currentGeometry]);
             }
         }
     }

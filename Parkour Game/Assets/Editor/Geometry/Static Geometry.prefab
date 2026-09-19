@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8088163504410977628}
-  - component: {fileID: -6552438916990478152}
+  - component: {fileID: 6342168033965291784}
   - component: {fileID: 603035058606145627}
   - component: {fileID: -8295401217615771458}
   m_Layer: 0
-  m_Name: Platform
+  m_Name: Static Geometry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,12 +29,12 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-6552438916990478152
+--- !u!114 &6342168033965291784
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,15 +43,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1019237363284306631}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c407e3d551c94b3ebae0abf765993499, type: 3}
+  m_Script: {fileID: 11500000, guid: c79b53535cdf481b95831363ad19be3f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Level.Platform
+  m_EditorClassIdentifier: Assembly-CSharp::Level.StaticGeometry
   _renderer: {fileID: -8295401217615771458}
   _filter: {fileID: 603035058606145627}
   _position: {x: 0, y: 0, z: 0}
   _scale: {x: 0, y: 0, z: 0}
-  _startPos: {x: 0, y: 0, z: 0}
-  _endPos: {x: 0, y: 0, z: 0}
 --- !u!33 &603035058606145627
 MeshFilter:
   m_ObjectHideFlags: 0
