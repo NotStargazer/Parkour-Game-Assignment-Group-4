@@ -3,6 +3,7 @@ using Level;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace LevelEditor
 {
@@ -209,26 +210,40 @@ namespace LevelEditor
                         else
                         {
                             _currentLevelBlock.Update();
-                            var newObject = Object.Instantiate(_geometryPrefabs[0].GameObject,
-                                _placementPoint, Quaternion.identity, _levelRoot.transform);
+                            var newObject = PrefabUtility.InstantiatePrefab(_geometryPrefabs[0].GameObject, _levelRoot.transform) as GameObject;
                             newObject.name = _geometryPrefabs[0].GameObject.name;
+                            newObject.transform.position = _placementPoint;
                             Undo.RegisterCreatedObjectUndo(newObject, "Add Level Geometry");
                             var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
                             levelObjects.InsertArrayElementAtIndex(levelObjects.arraySize);
+                            var element = levelObjects.GetArrayElementAtIndex(levelObjects.arraySize - 1);
+                            element.boxedValue = newObject;
                             _currentLevelBlock.ApplyModifiedProperties();
                         }
+
+                        Event.current.Use();
                     }
 
                     if (Event.current.keyCode == KeyCode.Mouse1)
                     {
                         if (LevelEditorUtility.TrySelectGeometry(out _currentSelection))
                         {
+                            _currentLevelBlock.Update();
                             Undo.RecordObject(_currentSelection.GameObject, "Delete Object");
                             Object.DestroyImmediate(_currentSelection.GameObject);
+                            var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
+                            for (var i = 0; i < levelObjects.arraySize; i++)
+                            {
+                                if (levelObjects.GetArrayElementAtIndex(i).boxedValue == null)
+                                {
+                                    levelObjects.DeleteArrayElementAtIndex(i);
+                                }
+                            }
+                            _currentLevelBlock.ApplyModifiedProperties();
+                            Event.current.Use();
                         }
                     }
                     
-                    Event.current.Use();
                 }
             }
 

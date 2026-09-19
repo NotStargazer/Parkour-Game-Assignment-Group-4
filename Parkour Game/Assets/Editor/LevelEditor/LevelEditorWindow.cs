@@ -129,7 +129,6 @@ namespace LevelEditor
             const float gap = 5f;
             var centerX =  EditorGUIUtility.currentViewWidth * 0.5f;
             var nameWidth = EditorGUIUtility.currentViewWidth - (gap * 4 + indexWidth * 2);
-
             
             var x = gap;
             GUI.Button(new Rect(x, yOffset, indexWidth, 20), "Prev");

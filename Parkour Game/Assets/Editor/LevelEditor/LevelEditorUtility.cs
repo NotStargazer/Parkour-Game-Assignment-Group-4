@@ -105,10 +105,13 @@ namespace LevelEditor
                     case 1:
                         Event.current.delta = Vector3.Dot(camRight, Vector3.left) > 0 ? delta : invDelta;
                         _rectHandleSize = new Vector2(expanse.z + expanse.w, height);
-                        expanse.x = Handles.ScaleValueHandle(expanse.x, leftPos, Quaternion.Euler(0, 90, 0), 
+                        expanse.x = Handles.ScaleValueHandle(expanse.x, leftPos, Quaternion.Euler(0, 90, 0),
                             HandleUtility.GetHandleSize(leftPos),
                             VariableRectangleHandleCap, 0);
-                        expanse.x = Snapping.Snap(expanse.x, EditorSnapSettings.gridSize.x);
+                        if (EditorSnapSettings.gridSnapEnabled && Event.current.GetTypeForControl(GUIUtility.hotControl) == EventType.Used)
+                        {
+                            expanse.x = Snapping.Snap(expanse.x, EditorSnapSettings.gridSize.x);
+                        }
                         break;
                     case 2:
                         Event.current.delta = Vector3.Dot(camRight, Vector3.right) > 0 ? delta : invDelta;
@@ -116,7 +119,10 @@ namespace LevelEditor
                         expanse.y = Handles.ScaleValueHandle(expanse.y, rightPos, Quaternion.Euler(0, 90, 0), 
                             HandleUtility.GetHandleSize(rightPos),
                             VariableRectangleHandleCap, 0);
-                        expanse.y = Snapping.Snap(expanse.y, EditorSnapSettings.gridSize.x);
+                        if (EditorSnapSettings.gridSnapEnabled && Event.current.GetTypeForControl(GUIUtility.hotControl) == EventType.Used)
+                        {
+                            expanse.y = Snapping.Snap(expanse.y, EditorSnapSettings.gridSize.x);
+                        }
                         break;
                     case 3:
                         Event.current.delta = Vector3.Dot(camRight, Vector3.back) > 0 ? delta : invDelta;
@@ -124,7 +130,10 @@ namespace LevelEditor
                         expanse.z = Handles.ScaleValueHandle(expanse.z, backPos, Quaternion.Euler(0, 0, 0), 
                             HandleUtility.GetHandleSize(backPos),
                             VariableRectangleHandleCap, 0);
-                        expanse.z = Snapping.Snap(expanse.z, EditorSnapSettings.gridSize.z);
+                        if (EditorSnapSettings.gridSnapEnabled && Event.current.GetTypeForControl(GUIUtility.hotControl) == EventType.Used)
+                        {
+                            expanse.z = Snapping.Snap(expanse.z, EditorSnapSettings.gridSize.z);
+                        }
                         break;
                     case 4:
                         Event.current.delta = Vector3.Dot(camRight, Vector3.forward) > 0 ? delta : invDelta;
@@ -132,15 +141,22 @@ namespace LevelEditor
                         expanse.w = Handles.ScaleValueHandle(expanse.w, forwardPos, Quaternion.Euler(0, 0, 0), 
                             HandleUtility.GetHandleSize(forwardPos),
                             VariableRectangleHandleCap, 0);
-                        expanse.w = Snapping.Snap(expanse.w, EditorSnapSettings.gridSize.z);
+                        if (EditorSnapSettings.gridSnapEnabled && Event.current.GetTypeForControl(GUIUtility.hotControl) == EventType.Used)
+                        {
+                            expanse.w = Snapping.Snap(expanse.w, EditorSnapSettings.gridSize.z);
+                        }
                         break;
                     case 5:
                         Event.current.delta = Vector3.Dot(camUp, Vector3.up) > 0 ? delta : invDelta;
                         _rectHandleSize = new Vector2(expanse.x + expanse.y, expanse.z + expanse.w);
-                        height = Handles.ScaleValueHandle(height, upPos, Quaternion.Euler(90, 0, 0), 
+                        var ctrl = GUIUtility.GetControlID(FocusType.Passive);
+                        height = Handles.ScaleValueHandle(ctrl, height, upPos, Quaternion.Euler(90, 0, 0), 
                             HandleUtility.GetHandleSize(upPos),
                             VariableRectangleHandleCap, 0);
-                        height = Snapping.Snap(height, EditorSnapSettings.gridSize.y);
+                        if (EditorSnapSettings.gridSnapEnabled && Event.current.GetTypeForControl(GUIUtility.hotControl) == EventType.Used)
+                        {
+                            height = Snapping.Snap(height, EditorSnapSettings.gridSize.y);
+                        }
                         break;
                 }
             }
@@ -181,7 +197,7 @@ namespace LevelEditor
         }
         
         //Short for distance rect verts
-        private static Vector3[] _drv = new Vector3[5];
+        private static readonly Vector3[] _drv = new Vector3[5];
         
         public static float DistanceToRectangle(
             Vector3 position,
@@ -275,8 +291,9 @@ namespace LevelEditor
 
         public static bool TrySelectGeometry(out ILevelObject levelObject)
         {
-            //TODO make custom gameobject filter for picking
-            HandleUtility.PickGameObject(Event.current.mousePosition, false);
+            levelObject = null;
+            var go = HandleUtility.PickGameObject(Event.current.mousePosition, false);
+            return go && go.TryGetComponent(out levelObject);
         }
         
         public static Vector3 UpdatePlacement(Vector4 expanse)
