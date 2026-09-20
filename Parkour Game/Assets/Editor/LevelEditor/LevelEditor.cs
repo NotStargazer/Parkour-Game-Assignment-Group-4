@@ -233,14 +233,14 @@ namespace LevelEditor
                     iterator.NextVisible(true);
                     while (iterator.NextVisible(true))
                     {
-                        if (first)
-                        {
-                            EditorGUILayout.Space();
-                            EditorGUILayout.LabelField("Selection Properties", new GUIStyle("CN Box"));
-                            first = false;
-                        }
                         if (iterator.HasAttributes<ShowInLevelEditorAttribute>())
                         {
+                            if (first)
+                            {
+                                EditorGUILayout.Space();
+                                EditorGUILayout.LabelField("Selection Properties", new GUIStyle("CN Box"));
+                                first = false;
+                            }
                             EditorGUILayout.PropertyField(iterator);
                         }
                     }
