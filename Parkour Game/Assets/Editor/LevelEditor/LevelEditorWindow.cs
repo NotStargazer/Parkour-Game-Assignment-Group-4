@@ -201,5 +201,10 @@ namespace LevelEditor
             LevelEditor.OpenLevelForEditing(_stage.prefabContentsRoot);
             _switchingLevel = false;
         }
+
+        public static void RepaintGUI()
+        {
+            _window?.Repaint();
+        }
     }
 }

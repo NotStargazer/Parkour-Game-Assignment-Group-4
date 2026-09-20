@@ -3,7 +3,7 @@ using Level;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Utility;
 
 namespace LevelEditor
 {
@@ -24,6 +24,8 @@ namespace LevelEditor
         private static readonly string OBJECT_DIRECTORY = Application.dataPath + "/Editor/Objects";
         
         private static SerializedObject _currentLevelBlock;
+        private static SerializedObject _selectionObject;
+        private static SerializedObject _selectionTransform;
         private static GameObject _levelRoot;
 
         private static SerializedObject[] _components;
@@ -31,12 +33,29 @@ namespace LevelEditor
         private static Tool _currentTool;
         private static int _currentGeometry;
         private static int _currentObject;
-        private static ILevelObject _currentSelection;
         private static ILevelObject[] _geometryPrefabs;
         private static ILevelObject[] _objectPrefabs;
+        private static ILevelObject _currentSelection;
         private static GUIContent[] _geometryIcons;
         private static GUIContent[] _objectIcons;
-        
+
+        private static ILevelObject CurrentSelection
+        {
+            get => _currentSelection;
+            set
+            {
+                _currentSelection = value;
+                _selectionObject?.Dispose();
+                _selectionTransform?.Dispose();
+                if (value != null)
+                {
+                    _selectionObject = new SerializedObject(value as Object);
+                    _selectionTransform = new SerializedObject(value.GameObject.transform);
+                    LevelEditorWindow.RepaintGUI();
+                }
+            }
+        }
+
         private static GameObject LevelRoot
         {
             get
@@ -51,6 +70,7 @@ namespace LevelEditor
             }
             set => _levelRoot = value;
         }
+        
         private static Transform LevelTransform => LevelRoot.transform;
         public static bool HasLevel => _currentLevelBlock != null;
         
@@ -92,11 +112,20 @@ namespace LevelEditor
                     .GetComponent<ILevelObject>();
                 _objectIcons[i] = new GUIContent();
             }
+
+            Undo.undoRedoPerformed -= OnDo;
+            Undo.undoRedoPerformed += OnDo;
         }
-        
+
+        private static void OnDo()
+        {
+            CurrentSelection = null;
+        }
+
         public static void OpenLevelForEditing(GameObject prefabRoot)
         {
             LevelRoot = prefabRoot;
+            _currentLevelBlock?.Dispose();
             _currentLevelBlock = prefabRoot.TryGetComponent(out LevelBlock levelBlock)
                 ? new SerializedObject(levelBlock)
                 : new SerializedObject(prefabRoot.AddComponent<LevelBlock>());
@@ -181,9 +210,43 @@ namespace LevelEditor
                 }
                 _currentObject = GUILayout.SelectionGrid(_currentObject, _objectIcons, 4);
             }
-            
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Selection", new GUIStyle("CN Box"));
+
+            if (CurrentSelection != null)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Selection Transform", new GUIStyle("CN Box"));
+                _selectionTransform.Update();
+                {
+                    var pos = _selectionTransform.FindProperty("m_LocalPosition");
+                    var scl = _selectionTransform.FindProperty("m_LocalScale");
+                    var rot = _selectionTransform.FindProperty("m_LocalRotation");
+                    pos.vector3Value = EditorGUILayout.Vector3Field("Position", pos.vector3Value);
+                    scl.vector3Value = EditorGUILayout.Vector3Field("Scale", scl.vector3Value);
+                    rot.quaternionValue = Quaternion.Euler(EditorGUILayout.Vector3Field("Rotation", rot.quaternionValue.eulerAngles));
+                }
+                _selectionTransform.ApplyModifiedProperties();
+                _selectionObject.Update();
+                {
+                    var iterator = _selectionObject.GetIterator();
+                    var first = true;
+                    //Skip script field;
+                    iterator.NextVisible(true);
+                    while (iterator.NextVisible(true))
+                    {
+                        if (first)
+                        {
+                            EditorGUILayout.Space();
+                            EditorGUILayout.LabelField("Selection Properties", new GUIStyle("CN Box"));
+                            first = false;
+                        }
+                        if (iterator.HasAttributes<ShowInLevelEditorAttribute>())
+                        {
+                            EditorGUILayout.PropertyField(iterator);
+                        }
+                    }
+                }
+                _selectionObject.ApplyModifiedProperties();
+            }
         }
         
         public static void OnSceneGUI(SceneView sceneView)
@@ -232,14 +295,18 @@ namespace LevelEditor
             {
                 if (Event.current.type == EventType.MouseDown)
                 {
+                    CurrentSelection = null;
                     if (Event.current.keyCode == KeyCode.Mouse0)
                     {
-                        if (!LevelEditorUtility.TrySelectGeometry(out _currentSelection))
+                        if (!LevelEditorUtility.TrySelectGeometry(out var select))
                         {
                             _currentLevelBlock.Update();
                             var newObject = PrefabUtility.InstantiatePrefab(_geometryPrefabs[_currentGeometry].GameObject, _levelRoot.transform) as GameObject;
                             newObject.name = _geometryPrefabs[_currentGeometry].GameObject.name;
-                            newObject.transform.position = _placementPoint.Value;
+                            var levelObject = newObject.GetComponent<ILevelObject>();
+                            levelObject.Position = _placementPoint.Value;
+                            EditorUtility.SetDirty(newObject);
+                            CurrentSelection = levelObject;
                             Undo.RegisterCreatedObjectUndo(newObject, "Add Level Geometry");
                             var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
                             levelObjects.InsertArrayElementAtIndex(levelObjects.arraySize);
@@ -247,17 +314,21 @@ namespace LevelEditor
                             element.boxedValue = newObject;
                             _currentLevelBlock.ApplyModifiedProperties();
                         }
+                        else
+                        {
+                            CurrentSelection = select;
+                        }
 
                         Event.current.Use();
                     }
 
                     if (Event.current.keyCode == KeyCode.Mouse1)
                     {
-                        if (LevelEditorUtility.TrySelectGeometry(out _currentSelection))
+                        if (LevelEditorUtility.TrySelectGeometry(out var delete))
                         {
                             _currentLevelBlock.Update();
-                            Undo.RecordObject(_currentSelection.GameObject, "Delete Object");
-                            Object.DestroyImmediate(_currentSelection.GameObject);
+                            Undo.RecordObject(delete.GameObject, "Delete Object");
+                            Object.DestroyImmediate(delete.GameObject);
                             var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
                             for (var i = 0; i < levelObjects.arraySize; i++)
                             {
@@ -276,6 +347,11 @@ namespace LevelEditor
             if (Event.current.keyCode != KeyCode.Mouse0)
             {
                 _placementPoint = LevelEditorUtility.UpdatePlacement(expanse, _geometryPrefabs[_currentGeometry]);
+            }
+
+            if (CurrentSelection != null)
+            {
+                
             }
         }
     }

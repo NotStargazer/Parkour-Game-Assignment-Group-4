@@ -6,11 +6,18 @@ namespace Level
     {
         [SerializeField] private MeshRenderer _renderer;
         [SerializeField] private MeshFilter _filter;
-        [SerializeField] private Vector3 _position;
-        [SerializeField] private Vector3 _scale;
 
         public Mesh Mesh => _filter.sharedMesh;
-        public Vector3 Scale => transform.localScale;
+        public Vector3 Position
+        {
+            get => transform.position;
+            set => transform.position = value;
+        }
+        public Vector3 Scale
+        {
+            get => transform.localScale;
+            set => transform.localScale = value;
+        }
         public GameObject GameObject => gameObject;
 
         public void Spawn()

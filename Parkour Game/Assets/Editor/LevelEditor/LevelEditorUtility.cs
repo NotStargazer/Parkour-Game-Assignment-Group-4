@@ -296,9 +296,6 @@ namespace LevelEditor
             return go && go.TryGetComponent(out levelObject);
         }
         
-        //Short for Outline Objects
-        private static GameObject[] _oo = new GameObject[1]; 
-        
         public static Vector3? UpdatePlacement(Vector4 expanse, ILevelObject levelObject)
         {
             var camera = SceneView.lastActiveSceneView.camera;
@@ -317,15 +314,14 @@ namespace LevelEditor
                     0.5f, Mathf.Clamp(point.z, 0.5f - expanse.z, expanse.w - 0.5f));
                 point = Snapping.Snap(point, EditorSnapSettings.gridSize);
                 Handles.color = new Color(0.75f, 0.9f, 1f, 0.35f);
-                DrawWireMesh(levelObject.Mesh, point, levelObject.Scale);
+                DrawMesh(levelObject.Mesh, point, levelObject.Scale);
                 return point;
             }
             
             return Vector3.zero;
         }
 
-
-        public static void DrawWireMesh(Mesh mesh, Vector3 position, Vector3 scale)
+        public static void DrawMesh(Mesh mesh, Vector3 position, Vector3 scale)
         {
             for (var i = 0; i < mesh.triangles.Length; i += 3)
             {
@@ -338,6 +334,11 @@ namespace LevelEditor
                     new Vector3(mesh.vertices[t3].x * scale.x, mesh.vertices[t3].y * scale.y, mesh.vertices[t3].z * scale.z) + position,
                     new Vector3(mesh.vertices[t1].x * scale.x, mesh.vertices[t1].y * scale.y, mesh.vertices[t1].z * scale.z) + position);
             }
+        }
+
+        public static void SelectionHandles(ref Vector3 position, ref Vector3 scale)
+        {
+            
         }
     }
 }
