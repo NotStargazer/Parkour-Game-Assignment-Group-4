@@ -73,7 +73,6 @@ namespace LevelEditor
             set => _levelRoot = value;
         }
         
-        private static Transform LevelTransform => LevelRoot.transform;
         public static bool HasLevel => _currentLevelBlock != null;
         
         public static string LevelName
@@ -278,6 +277,11 @@ namespace LevelEditor
         
         public static void OnSceneGUI(SceneView sceneView)
         {
+            if (!HasLevel)
+            {
+                return;
+            }
+            
             _currentLevelBlock.Update();
             var expanse = _currentLevelBlock.FindProperty("_expanse").vector4Value;
             var height = _currentLevelBlock.FindProperty("_height").floatValue;
@@ -414,6 +418,13 @@ namespace LevelEditor
             {
                 _placementPoint = LevelEditorUtility.UpdatePlacement(expanse, _placementHeight, objects[index]);
             }
+        }
+
+        public static void Reset()
+        {
+            _currentLevelBlock = null;
+            CurrentSelection = null;
+            LevelRoot = null;
         }
     }
 }
