@@ -296,7 +296,7 @@ namespace LevelEditor
             return go && go.TryGetComponent(out levelObject);
         }
         
-        public static Vector3? UpdatePlacement(Vector4 expanse, ILevelObject levelObject)
+        public static Vector3? UpdatePlacement(Vector4 expanse, float height, ILevelObject levelObject)
         {
             var camera = SceneView.lastActiveSceneView.camera;
             var mousePos = Event.current.mousePosition;
@@ -310,8 +310,10 @@ namespace LevelEditor
             {
                 var point = ray.GetPoint(enter);
                 
-                point = new Vector3(Mathf.Clamp(point.x, 0.5f - expanse.x, expanse.y - 0.5f),
-                    0.5f, Mathf.Clamp(point.z, 0.5f - expanse.z, expanse.w - 0.5f));
+                point = new Vector3(
+                    Mathf.Clamp(point.x, 0.5f - expanse.x, expanse.y - 0.5f),
+                    height,
+                    Mathf.Clamp(point.z, 0.5f - expanse.z, expanse.w - 0.5f));
                 point = Snapping.Snap(point, EditorSnapSettings.gridSize);
                 Handles.color = new Color(0.75f, 0.9f, 1f, 0.35f);
                 DrawMesh(levelObject.Mesh, point, levelObject.Scale);
@@ -336,9 +338,91 @@ namespace LevelEditor
             }
         }
 
-        public static void SelectionHandles(ref Vector3 position, ref Vector3 scale)
+        public static void SelectionHandles(ref Vector3 posVal, ref Vector3 sclVal, ref Quaternion rotVal, bool posOnly)
         {
+            if (Event.current.type == EventType.MouseDown)
+            {
+                for (var index = 0; index < HV.Length; index++)
+                {
+                    HV[index] = 1f;
+                }
+            }
+
+            if (posOnly)
+            {
+                posVal = Handles.DoPositionHandle(posVal, Quaternion.identity);
+                return;
+            }
             
+            switch (Tools.current)
+            {
+                case Tool.Rotate:
+                    rotVal = Handles.DoRotationHandle(rotVal, posVal);
+                    break;
+                case Tool.Scale:
+                    SideExpandHandle(ref posVal, ref sclVal);
+                    break;
+                default:
+                    posVal = Handles.DoPositionHandle(posVal, Quaternion.identity);
+                    break;
+            }
+        }
+
+        //Short for handle values
+        private static readonly float[] HV = { 1f, 1f, 1f, 1f, 1f, 1f };
+        
+        public static void SideExpandHandle(ref Vector3 position, ref Vector3 scale)
+        {
+            Handles.color = Handles.xAxisColor;
+            var val = Handles.ScaleSlider(HV[0], position,
+                Vector3.left, Quaternion.identity,
+                HandleUtility.GetHandleSize(position), EditorSnapSettings.gridSize.x);
+            var difference = val - HV[0];
+            HV[0] = val;
+            position.x -= difference * 0.5f;
+            scale.x += difference;
+            
+            val = Handles.ScaleSlider(HV[1], position,
+                Vector3.right, Quaternion.identity,
+                HandleUtility.GetHandleSize(position), EditorSnapSettings.gridSize.x);
+            difference = val - HV[1];
+            HV[1] = val;
+            position.x += difference * 0.5f;
+            scale.x += difference;
+            
+            Handles.color = Handles.yAxisColor;
+            val = Handles.ScaleSlider(HV[2], position,
+                Vector3.down, Quaternion.identity,
+                HandleUtility.GetHandleSize(position), EditorSnapSettings.gridSize.y);
+            difference = val - HV[2];
+            HV[2] = val;
+            position.y -= difference * 0.5f;
+            scale.y += difference;
+            
+            val = Handles.ScaleSlider(HV[3], position,
+                Vector3.up, Quaternion.identity,
+                HandleUtility.GetHandleSize(position), EditorSnapSettings.gridSize.y);
+            difference = val - HV[3];
+            HV[3] = val;
+            position.y += difference * 0.5f;
+            scale.y += difference;
+            
+            Handles.color = Handles.zAxisColor;
+            val = Handles.ScaleSlider(HV[4], position,
+                Vector3.back, Quaternion.identity,
+                HandleUtility.GetHandleSize(position), EditorSnapSettings.gridSize.z);
+            difference = val - HV[4];
+            HV[4] = val;
+            position.z -= difference * 0.5f;
+            scale.z += difference;
+            
+            val = Handles.ScaleSlider(HV[5], position,
+                Vector3.forward, Quaternion.identity,
+                HandleUtility.GetHandleSize(position), EditorSnapSettings.gridSize.z);
+            difference = val - HV[5];
+            HV[5] = val;
+            position.z += difference * 0.5f;
+            scale.z += difference;
         }
     }
 }

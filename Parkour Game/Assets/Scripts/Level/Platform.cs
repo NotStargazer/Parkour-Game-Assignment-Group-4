@@ -5,13 +5,20 @@ namespace Level
 {
     public class Platform : MonoBehaviour, ILevelObject
     {
+        [SerializeField] private bool _isGeometry;
         [SerializeField] private MeshRenderer _renderer;
         [SerializeField] private MeshFilter _filter;
-        [ShowInLevelEditor] [SerializeField] private Vector3 _startPos;
-        [ShowInLevelEditor] [SerializeField] private Vector3 _endPos;
+        [ShowInLevelEditor] [SerializeField] private Vector3 _endOffset;
 
+        private Vector3 _start;
+        private Vector3 _end;
+        
+        public bool IsGeometry
+        {
+            get => _isGeometry;
+            set => _isGeometry = value;
+        }
         public Mesh Mesh => _filter.sharedMesh;
-
         public Vector3 Position
         {
             get => transform.position;
@@ -31,6 +38,8 @@ namespace Level
 
         private void Awake()
         {
+            _start = transform.position;
+            _end = transform.position + _endOffset;
         }
 
         private void OnValidate()
@@ -43,6 +52,14 @@ namespace Level
             {
                 _renderer = gameObject.AddComponent<MeshRenderer>();
             }
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(transform.position, transform.position + _endOffset);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireMesh(Mesh, 0, transform.position + _endOffset, transform.rotation, transform.localScale);
         }
     }
 }

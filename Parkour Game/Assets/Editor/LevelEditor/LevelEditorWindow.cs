@@ -17,6 +17,7 @@ namespace LevelEditor
         private static string _priorScene;
         private static bool _switchingLevel;
         private static bool _wantsToQuit;
+        private static Vector2 _scroll;
 
         private static readonly string LEVEL_DIRECTORY = Application.dataPath + "/Level Blocks/";
         private static readonly string GEOMETRY_DIRECTORY = Application.dataPath + "/Editor/Geometry";
@@ -90,6 +91,7 @@ namespace LevelEditor
             var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
             _window ??= GetWindow<LevelEditorWindow>("Level Editor", inspectorType);
             ReloadLevels();
+            LevelEditor.OnLoad();
             
             SceneView.duringSceneGui += LevelEditor.OnSceneGUI;
             PrefabStage.prefabStageOpened += SceneOpened;
@@ -142,7 +144,7 @@ namespace LevelEditor
             var nameWidth = EditorGUIUtility.currentViewWidth - (gap * 4 + indexWidth * 2);
             
             var x = gap;
-            GUI.Button(new Rect(x, yOffset, indexWidth, 20), "Prev");
+            var prev = GUI.Button(new Rect(x, yOffset, indexWidth, 20), "Prev");
             x += indexWidth + gap;
             GUI.enabled = LevelEditor.HasLevel;
             var newName = 
@@ -153,13 +155,48 @@ namespace LevelEditor
             }
             GUI.enabled = true;
             x += nameWidth + gap;
-            GUI.Button(new Rect(x, yOffset, indexWidth, 20), "Next");
+            var next = GUI.Button(new Rect(x, yOffset, indexWidth, 20), "Next");
+
+            if (next)
+            {
+                ChangeLevel(_levelIndex + 1);
+            }
+
+            if (prev)
+            {
+                ChangeLevel(_levelIndex - 1);
+            }
 
             if (LevelEditor.HasLevel)
             {
                 GUILayout.Space(40);
-                LevelEditor.OnGUI();
-                
+                GUILayout.BeginHorizontal();
+                {
+                    if (GUILayout.Button("Add Level"))
+                    {
+                        var level = _levelPrefabNames.Length;
+                        CreateLevel();
+                        ChangeLevel(level);
+                    }
+
+                    if (GUILayout.Button("Delete Level"))
+                    {
+                        if (EditorUtility.DisplayDialog("Delete Level",
+                                "Are you sure you want to delete this level?",
+                                "Delete", "Cancel"))
+                        {
+                            
+                        }
+                    }
+                }
+                GUILayout.EndHorizontal();
+                _scroll = GUILayout.BeginScrollView(_scroll, new GUIStyle
+                {
+                    fixedWidth = _window.position.width,
+                    stretchWidth = false,
+                });
+                LevelEditor.OnGUI(this);
+                EditorGUILayout.EndScrollView();
                 return;
             }
             
@@ -176,6 +213,18 @@ namespace LevelEditor
             }
         }
         
+        private static void ChangeLevel(int index)
+        {
+            var old = _levelIndex;
+            //Ensure it stays within the index range
+            _levelIndex = index < 0 ? _levelPrefabNames.Length - 1 : index % _levelPrefabNames.Length;
+
+            if (old != _levelIndex)
+            {
+                LoadLevel(false);
+            }
+        }
+        
         private static void CreateLevel()
         {
             var levelRoot = new GameObject($"Level {_levelPrefabNames.Length + 1}");
@@ -183,21 +232,28 @@ namespace LevelEditor
             PrefabUtility.SaveAsPrefabAsset(levelRoot, LEVEL_ASSET_PATH + $"Level {_levelPrefabNames.Length + 1}" + ".prefab");
             ReloadLevels();
         }
-
-        private static void LoadLevel()
+        
+        //unity editor is very clunky sometimes
+        private static void LoadLevel(bool init = true)
         {
             _switchingLevel = true;
-            _stage = PrefabStageUtility.GetCurrentPrefabStage();
-            if (!_stage)
+            if (init)
             {
-                _stage = PrefabStageUtility.OpenPrefab(LEVEL_ASSET_PATH + _levelPrefabNames[_levelIndex] + ".prefab");
+                _stage = PrefabStageUtility.GetCurrentPrefabStage();
+                if (!_stage)
+                {
+                    _stage = PrefabStageUtility.OpenPrefab(LEVEL_ASSET_PATH + _levelPrefabNames[_levelIndex] + ".prefab");
+                }
+                else
+                {
+                    _levelIndex = Array.FindIndex(_levelPrefabNames,
+                        s => s == Path.GetFileNameWithoutExtension(_stage.assetPath));
+                }
             }
             else
             {
-                _levelIndex = Array.FindIndex(_levelPrefabNames,
-                    s => s == Path.GetFileNameWithoutExtension(_stage.assetPath));
+                _stage = PrefabStageUtility.OpenPrefab(LEVEL_ASSET_PATH + _levelPrefabNames[_levelIndex] + ".prefab");
             }
-            
             LevelEditor.OpenLevelForEditing(_stage.prefabContentsRoot);
             _switchingLevel = false;
         }
