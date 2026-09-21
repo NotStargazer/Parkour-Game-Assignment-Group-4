@@ -9,6 +9,8 @@ namespace LevelEditor
 {
     public static class LevelEditor
     {
+        public static EditorWindow Window;
+
         private enum Tool
         {
             Bounds,
@@ -151,7 +153,7 @@ namespace LevelEditor
             EditorGUIUtility.IconContent("d_PreMatSphere"),
         };
         
-        public static void OnGUI(EditorWindow window)
+        public static void OnGUI()
         {
             EditorGUILayout.LabelField("Tools");
             var change = (Tool)GUILayout.Toolbar((int)_currentTool, TOOLBAR_CONTENT);
@@ -216,7 +218,7 @@ namespace LevelEditor
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Geometry", new GUIStyle("CN Box"));
                 _currentGeometryIndex = GUILayout.SelectionGrid(_currentGeometryIndex, _geometryIcons,
-                    (int)(window.position.width / 64), GUILayout.MaxHeight(64));
+                    (int)(Window.position.width / 64), GUILayout.MaxHeight(64));
             }
             if (_currentTool == Tool.Objects)
             {
@@ -230,7 +232,7 @@ namespace LevelEditor
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Objects", new GUIStyle("CN Box"));
                 _currentObjectIndex = GUILayout.SelectionGrid(_currentObjectIndex, _objectIcons, 
-                    (int)(window.position.width / 64), GUILayout.MaxHeight(64));
+                    (int)(Window.position.width / 64), GUILayout.MaxHeight(64));
             }
 
             if (CurrentSelection != null)
@@ -313,6 +315,33 @@ namespace LevelEditor
                 _selectionTransform.ApplyModifiedProperties();
             }
             
+            if (Event.current.isKey)
+            {
+                switch (Event.current.keyCode)
+                {
+                    case KeyCode.G:
+                        _currentTool = Tool.Bounds;
+                        Event.current.Use();
+                        Window.Repaint();
+                        break;
+                    case KeyCode.H:
+                        _currentTool = Tool.Gates;
+                        Event.current.Use();
+                        Window.Repaint();
+                        break;
+                    case KeyCode.B:
+                        _currentTool = Tool.Geometry;
+                        Event.current.Use();
+                        Window.Repaint();
+                        break;
+                    case KeyCode.N:
+                        _currentTool = Tool.Objects;
+                        Event.current.Use();
+                        Window.Repaint();
+                        break;
+                }
+            }
+            
             switch (_currentTool)
             {
                 case Tool.Bounds:
@@ -380,7 +409,7 @@ namespace LevelEditor
                 }
             }
             
-            if (Event.current.keyCode == KeyCode.Delete && CurrentSelection != null)
+            if (Event.current.isKey && Event.current.keyCode == KeyCode.Delete && CurrentSelection != null)
             {
                 _currentLevelBlock.Update();
                 Undo.DestroyObjectImmediate(CurrentSelection.GameObject);

@@ -48,6 +48,7 @@ namespace LevelEditor
         {
             var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
             _window = GetWindow<LevelEditorWindow>("Level Editor", inspectorType);
+            LevelEditor.Window = _window;
 
             if (!Directory.Exists(LEVEL_DIRECTORY))
             {
@@ -90,6 +91,7 @@ namespace LevelEditor
             Tools.hidden = true;
             var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
             _window ??= GetWindow<LevelEditorWindow>("Level Editor", inspectorType);
+            LevelEditor.Window = _window;
             ReloadLevels();
             LevelEditor.OnLoad();
             
@@ -197,7 +199,7 @@ namespace LevelEditor
                     fixedWidth = _window.position.width,
                     stretchWidth = false,
                 });
-                LevelEditor.OnGUI(this);
+                LevelEditor.OnGUI();
                 EditorGUILayout.EndScrollView();
                 return;
             }
