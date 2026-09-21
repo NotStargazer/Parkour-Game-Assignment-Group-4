@@ -378,27 +378,23 @@ namespace LevelEditor
 
                     Event.current.Use();
                 }
-
-                if (Event.current.keyCode == KeyCode.Mouse1)
+            }
+            
+            if (Event.current.keyCode == KeyCode.Delete && CurrentSelection != null)
+            {
+                _currentLevelBlock.Update();
+                Undo.DestroyObjectImmediate(CurrentSelection.GameObject);
+                CurrentSelection = null;
+                var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
+                for (var i = 0; i < levelObjects.arraySize; i++)
                 {
-                    if (LevelEditorUtility.TrySelectGeometry(out var delete))
+                    if (levelObjects.GetArrayElementAtIndex(i).boxedValue == null)
                     {
-                        _currentLevelBlock.Update();
-                        Undo.RecordObject(delete.GameObject, "Delete Object");
-                        Object.DestroyImmediate(delete.GameObject);
-                        var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
-                        for (var i = 0; i < levelObjects.arraySize; i++)
-                        {
-                            if (levelObjects.GetArrayElementAtIndex(i).boxedValue == null)
-                            {
-                                levelObjects.DeleteArrayElementAtIndex(i);
-                            }
-                        }
-
-                        _currentLevelBlock.ApplyModifiedProperties();
-                        Event.current.Use();
+                        levelObjects.DeleteArrayElementAtIndex(i);
                     }
                 }
+                _currentLevelBlock.ApplyModifiedProperties();
+                Event.current.Use();
             }
             
             if (CurrentSelection != null)
