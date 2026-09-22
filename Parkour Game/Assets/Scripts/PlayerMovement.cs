@@ -140,4 +140,8 @@ public class PlayerMovement : MonoBehaviour
             _coyoteTimer = 0f;
         }
     }
+    public void SetVerticalVelocity(float newVelocity)
+    {
+        verticalVelocity = newVelocity;
+    }
 }
