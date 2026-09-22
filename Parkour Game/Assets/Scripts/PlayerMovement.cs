@@ -65,4 +65,8 @@ public class PlayerMovement : MonoBehaviour
         }// hint: only allow jumping if controller.isGrounded
         // hint: set vertical velocity using: sqrt(jumpHeight * -2 * gravity)
     }
+    public void SetVerticalVelocity(float newVelocity)
+    {
+        verticalVelocity = newVelocity;
+    }
 }
