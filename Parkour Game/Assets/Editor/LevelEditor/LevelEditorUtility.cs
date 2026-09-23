@@ -16,14 +16,14 @@ namespace LevelEditor
         public static void DrawSolidCube(Vector3 center, Vector3 size, Color color, Color outlineColor)
         {
             var h = size * 0.5f;
-            var lbl = new Vector3(-h.x,  h.y, -h.z) + center;
-            var lbr = new Vector3( h.x,  h.y, -h.z) + center;
-            var lfl = new Vector3(-h.x,  h.y,  h.z) + center;
-            var lfr = new Vector3( h.x,  h.y,  h.z) + center;
-            var ubl = new Vector3(-h.x, -h.y, -h.z) + center;
-            var ubr = new Vector3( h.x, -h.y, -h.z) + center;
-            var ufl = new Vector3(-h.x, -h.y,  h.z) + center;
-            var ufr = new Vector3( h.x, -h.y,  h.z) + center;
+            var lbl = new Vector3(-h.x, -h.y, -h.z) + center;
+            var lbr = new Vector3( h.x, -h.y, -h.z) + center;
+            var lfl = new Vector3(-h.x, -h.y,  h.z) + center;
+            var lfr = new Vector3( h.x, -h.y,  h.z) + center;
+            var ubl = new Vector3(-h.x,  h.y, -h.z) + center;
+            var ubr = new Vector3( h.x,  h.y, -h.z) + center;
+            var ufl = new Vector3(-h.x,  h.y,  h.z) + center;
+            var ufr = new Vector3( h.x,  h.y,  h.z) + center;
 
             _scv[0][0] = lbl;_scv[0][1] = ubl;_scv[0][2] = ufl;_scv[0][3] = lfl;
             _scv[1][0] = lbr;_scv[1][1] = ubr;_scv[1][2] = ufr;_scv[1][3] = lfr;
