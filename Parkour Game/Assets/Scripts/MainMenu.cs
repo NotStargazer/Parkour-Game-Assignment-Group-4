@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using UnityEngine.Assertions.Must;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
 
@@ -11,12 +10,10 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button _playButton;
     [SerializeField] private Button _scoreButton;
     [SerializeField] private Button _exitButton;
-
     [SerializeField] private Animation _animation;
 
     private bool _showingScore = false; // adding "_" at the beginning + camelCase for fields
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+  
     // I wanna trigger a looped animation when the intro finishes.
     void Start()
     {
@@ -56,10 +53,7 @@ public class MainMenu : MonoBehaviour
 #endif
             }));
         }
-        
     }
-
-
 
     IEnumerator WaitForAnimationToFinish(string animName, bool inverted = false, System.Action endFunction = null)
     {
