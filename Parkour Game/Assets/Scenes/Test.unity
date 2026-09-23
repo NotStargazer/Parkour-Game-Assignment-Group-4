@@ -846,16 +846,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2de8c92736582b648a301b406a1c613f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  jumpForce: 8
-  minSpeed: 3
-  acceleration: 10
-  maxSpeed: 15
-  gravity: -18
-  cameraTransform: {fileID: 1297476728}
-  mouseSensitivity: 0.2
-  deceleration: 8
-  airControl: 10
-  cyoteTime: 2
+  _jumpForce: 6
+  _minSpeed: 10
+  _acceleration: 2
+  _maxSpeed: 20
+  _gravity: -15
+  _cameraTransform: {fileID: 1297476728}
+  _mouseSensitivity: 0.3
+  _deceleration: 10
+  _airControl: 2
+  _coyoteTime: 0.2
 --- !u!143 &1495624888
 CharacterController:
   m_ObjectHideFlags: 0
