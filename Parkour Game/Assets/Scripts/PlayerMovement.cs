@@ -1,21 +1,18 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-
     private CharacterController controller;
     private PlayerControls controls;
 
     [SerializeField] private float jumpForce = 8f;
-    [SerializeField ]private float minSpeed = 0f;
-    [SerializeField] private float acceleration = 1f;
+    [SerializeField] private float minSpeed = 0f;
+    [SerializeField] private float acceleration = 12f;
     [SerializeField] private float maxSpeed = 8f;
     [SerializeField] private float gravity = -9.81f;
-    [SerializeField] Transform cameraTransform;
+    [SerializeField] private Transform cameraTransform;
     [SerializeField] private float mouseSensitivity = 2f;
-
 
     private float currentSpeed;
     private float xRotation;
@@ -44,28 +41,25 @@ public class PlayerMovement : MonoBehaviour
         Vector2 moveInput = controls.Player.Move.ReadValue<Vector2>();
         Vector3 moveDirection = transform.right * moveInput.x + transform.forward * moveInput.y;
         moveDirection = moveDirection.normalized;
-        
-      
 
         if (moveInput != Vector2.zero)
         {
             currentSpeed += acceleration * Time.deltaTime;
             currentSpeed = Mathf.Clamp(currentSpeed, minSpeed, maxSpeed);
         }
-        else 
+        else
         {
             currentSpeed = 0f;
         }
 
+        if (controller.isGrounded && verticalVelocity < 0f)
+        {
+            verticalVelocity = -2f;
+        }
 
         verticalVelocity += gravity * Time.deltaTime;
         Vector3 finalMove = moveDirection * currentSpeed + Vector3.up * verticalVelocity;
         controller.Move(finalMove * Time.deltaTime);
-
-        if ((controller.collisionFlags & CollisionFlags.Sides) != 0)
-        {
-            currentSpeed = minSpeed;
-        }
 
         Vector2 lookInput = controls.Player.Look.ReadValue<Vector2>();
 
@@ -88,5 +82,10 @@ public class PlayerMovement : MonoBehaviour
     public void SetVerticalVelocity(float newVelocity)
     {
         verticalVelocity = newVelocity;
+    }
+
+    public void SetCurrentSpeed(float speed)
+    {
+        currentSpeed = speed;
     }
 }
