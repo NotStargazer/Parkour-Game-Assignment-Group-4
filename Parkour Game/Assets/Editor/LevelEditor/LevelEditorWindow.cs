@@ -96,7 +96,7 @@ namespace LevelEditor
             LevelEditor.OnLoad();
             
             SceneView.duringSceneGui += LevelEditor.OnSceneGUI;
-            PrefabStage.prefabStageOpened += SceneOpened;
+            PrefabStage.prefabStageClosing += SceneClosed;
             EditorSceneManager.sceneClosed += SceneClosed;
         }
 
@@ -108,7 +108,7 @@ namespace LevelEditor
             }
         }
         
-        private void SceneOpened(PrefabStage obj)
+        private void SceneClosed(PrefabStage obj)
         {
             if (!_switchingLevel)
             {
@@ -126,13 +126,9 @@ namespace LevelEditor
             
             LevelEditor.Reset();
             Tools.hidden = false;
-            PrefabStage.prefabStageOpened -= SceneOpened;
+            PrefabStage.prefabStageClosing -= SceneClosed;
             EditorSceneManager.sceneClosed -= SceneClosed;
             SceneView.duringSceneGui -= LevelEditor.OnSceneGUI;
-            if (!string.IsNullOrEmpty(_priorScene))
-            {
-                EditorSceneManager.ClosePreviewScene(PrefabStageUtility.GetCurrentPrefabStage().scene);
-            }
             SceneView.lastActiveSceneView.sceneViewState.showSkybox = _skybox;
         }
 
@@ -239,9 +235,9 @@ namespace LevelEditor
         
         private static void CreateLevel()
         {
-            var levelRoot = new GameObject($"Level {_levelPrefabNames.Length + 1}");
-            levelRoot.AddComponent<LevelBlock>();
+            var levelRoot = new GameObject($"Level {_levelPrefabNames.Length + 1}", typeof(LevelBlock));
             PrefabUtility.SaveAsPrefabAsset(levelRoot, LEVEL_ASSET_PATH + $"Level {_levelPrefabNames.Length + 1}" + ".prefab");
+            DestroyImmediate(levelRoot);
             ReloadLevels();
         }
 
