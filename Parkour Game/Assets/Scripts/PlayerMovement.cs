@@ -66,7 +66,6 @@ public class PlayerMovement : MonoBehaviour
         {
             currentSpeed = minSpeed;
         }
-        Debug.Log(currentSpeed);
 
         Vector2 lookInput = controls.Player.Look.ReadValue<Vector2>();
 
