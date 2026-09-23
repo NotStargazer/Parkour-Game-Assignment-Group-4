@@ -123,13 +123,5 @@ namespace Level
             }
 #endif
         }
-
-        private void OnDrawGizmos()
-        {
-            if (_lastEnqueued)
-            {
-                Gizmos.DrawSphere(_lastEnqueued.EndGatePosition, 2);
-            }
-        }
     }
 }

@@ -376,29 +376,11 @@ namespace LevelEditor
             {
                 var wasSelected = CurrentSelection != null;
                 CurrentSelection = null;
-                if (Event.current.keyCode == KeyCode.Mouse0 && !wasSelected)
+                if (Event.current.keyCode == KeyCode.Mouse2 && !wasSelected)
                 {
                     if (!LevelEditorUtility.TrySelectGeometry(out var select))
                     {
-                        _currentLevelBlock.Update();
-                        var newObject = PrefabUtility.InstantiatePrefab(objects[index].GameObject,
-                            _levelRoot.transform) as GameObject;
-                        newObject.name = objects[index].GameObject.name;
-                        var levelObject = newObject.GetComponent<ILevelObject>();
-                        levelObject.Position = _placementPoint.Value;
-                        levelObject.IsGeometry = _currentTool == Tool.Geometry;
-                        EditorUtility.SetDirty(newObject);
-                        Undo.RegisterCreatedObjectUndo(newObject, "Add Level Geometry");
-                        var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
-                        levelObjects.InsertArrayElementAtIndex(levelObjects.arraySize);
-                        var element = levelObjects.GetArrayElementAtIndex(levelObjects.arraySize - 1);
-                        element.boxedValue = newObject;
-                        _currentLevelBlock.ApplyModifiedProperties();
 
-                        if (Event.current.control)
-                        {
-                            CurrentSelection = levelObject;
-                        }
                     }
                     else
                     {
@@ -406,6 +388,29 @@ namespace LevelEditor
                     }
 
                     Event.current.Use();
+                }
+
+                if (Event.current.keyCode == KeyCode.Mouse0)
+                {
+                    _currentLevelBlock.Update();
+                    var newObject = PrefabUtility.InstantiatePrefab(objects[index].GameObject,
+                        _levelRoot.transform) as GameObject;
+                    newObject.name = objects[index].GameObject.name;
+                    var levelObject = newObject.GetComponent<ILevelObject>();
+                    levelObject.Position = _placementPoint.Value;
+                    levelObject.IsGeometry = _currentTool == Tool.Geometry;
+                    EditorUtility.SetDirty(newObject);
+                    Undo.RegisterCreatedObjectUndo(newObject, "Add Level Geometry");
+                    var levelObjects = _currentLevelBlock.FindProperty("_levelObjects");
+                    levelObjects.InsertArrayElementAtIndex(levelObjects.arraySize);
+                    var element = levelObjects.GetArrayElementAtIndex(levelObjects.arraySize - 1);
+                    element.boxedValue = newObject;
+                    _currentLevelBlock.ApplyModifiedProperties();
+
+                    if (Event.current.control)
+                    {
+                        CurrentSelection = levelObject;
+                    }
                 }
             }
             
