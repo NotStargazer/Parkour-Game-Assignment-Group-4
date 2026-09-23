@@ -1,4 +1,3 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -48,7 +47,6 @@ public class PlayerMovement : MonoBehaviour
         Vector3 moveDirection = transform.right * moveInput.x + transform.forward * moveInput.y;
         moveDirection = moveDirection.normalized;
 
-
         if (!isSliding)
         {
             if (moveInput != Vector2.zero)
@@ -60,7 +58,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 currentSpeed = 0f;
             }
-
 
             verticalVelocity += gravity * Time.deltaTime;
             Vector3 finalMove = moveDirection * currentSpeed + Vector3.up * verticalVelocity;
@@ -80,7 +77,6 @@ public class PlayerMovement : MonoBehaviour
             logTimer = 0f;
         }
 
-
         Vector2 lookInput = controls.Player.Look.ReadValue<Vector2>();
 
         float mouseX = lookInput.x * mouseSensitivity;
@@ -99,6 +95,5 @@ public class PlayerMovement : MonoBehaviour
             verticalVelocity = jumpForce;
         }
     }
-
 
 }
