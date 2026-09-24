@@ -9,15 +9,15 @@ public class PlayerMovement : MonoBehaviour
     private PlayerControls controls;
 
     [SerializeField] private float jumpForce = 8f;
-    [SerializeField ]private float minSpeed = 0f;
+    public float minSpeed = 0f;
     [SerializeField] private float acceleration = 1f;
-    [SerializeField] private float maxSpeed = 8f;
+    public float maxSpeed = 8f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] Transform cameraTransform;
     [SerializeField] private float mouseSensitivity = 2f;
 
 
-    private float currentSpeed;
+    public float currentSpeed;
     private float xRotation;
     private float verticalVelocity;
 

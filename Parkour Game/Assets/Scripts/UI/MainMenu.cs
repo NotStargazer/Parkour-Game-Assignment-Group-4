@@ -72,7 +72,7 @@ public class MainMenu : MonoBehaviour
             _animation[animName].speed = 1f;
         }
 
-        _animation.Play(animName);
+        
 
         while (_animation.IsPlaying(animName))
         {
