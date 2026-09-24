@@ -374,15 +374,10 @@ namespace LevelEditor
                 && Event.current.type == EventType.MouseDown
                 && _placementPoint.HasValue)
             {
-                var wasSelected = CurrentSelection != null;
                 CurrentSelection = null;
-                if (Event.current.keyCode == KeyCode.Mouse2 && !wasSelected)
+                if (Event.current.keyCode == KeyCode.Mouse2)
                 {
-                    if (!LevelEditorUtility.TrySelectGeometry(out var select))
-                    {
-
-                    }
-                    else
+                    if (LevelEditorUtility.TrySelectGeometry(out var select))
                     {
                         CurrentSelection = select;
                     }
@@ -411,6 +406,8 @@ namespace LevelEditor
                     {
                         CurrentSelection = levelObject;
                     }
+                    
+                    Event.current.Use();
                 }
             }
             
