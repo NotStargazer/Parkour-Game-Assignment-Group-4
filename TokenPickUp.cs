@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class TokenPickup : MonoBehaviour
+public class TokenPickup : MonoBehaviour, ILevelObject
+
 {
    
     public int scoreValue = 5; 
