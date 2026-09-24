@@ -168,13 +168,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2de8c92736582b648a301b406a1c613f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  jumpForce: 8
-  minSpeed: 0
-  acceleration: 20
-  maxSpeed: 8
-  gravity: -9.81
-  cameraTransform: {fileID: 1903632960}
-  mouseSensitivity: 0.5
+  _jumpForce: 8
+  _maxSpeed: 8
+  _gravity: -9.81
+  _cameraTransform: {fileID: 0}
+  _mouseSensitivity: 2
+  _deceleration: 0
+  _airControlPercentage: 2
+  _turnTime: 0.2
+  _coyoteTime: 0.2
+  _breakingForce: 0
+  _accelerationCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!143 &160892880
 CharacterController:
   m_ObjectHideFlags: 0
@@ -302,7 +311,6 @@ GameObject:
   - component: {fileID: 1463707432}
   - component: {fileID: 1463707431}
   - component: {fileID: 1463707430}
-  - component: {fileID: 1463707429}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -310,22 +318,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1463707429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1463707428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c407e3d551c94b3ebae0abf765993499, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Level.Platform
-  _isGeometry: 0
-  _renderer: {fileID: 1463707431}
-  _filter: {fileID: 1463707432}
-  _endOffset: {x: 0, y: 0, z: 0}
 --- !u!65 &1463707430
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -522,7 +514,6 @@ MonoBehaviour:
   - {fileID: 4413114547501464468, guid: 7bec3e9aeaeba944b8aea52f9561dfd0, type: 3}
   - {fileID: 545650104945237666, guid: a44c0f876339c6849a72f73f725c2bd2, type: 3}
   - {fileID: 6431601978280606098, guid: 6e890c6333367784c946eff8844a7bb2, type: 3}
-  - {fileID: 563201798902611932, guid: ea10eb5137fc5d040b632175f5610b7f, type: 3}
   _aheadBlocks: 1
 --- !u!4 &1739093651
 Transform:

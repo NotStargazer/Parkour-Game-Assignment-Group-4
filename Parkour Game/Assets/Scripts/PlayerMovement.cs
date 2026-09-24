@@ -116,16 +116,12 @@ public class PlayerMovement : MonoBehaviour
         Vector3 finalMove = new Vector3(_horizontalVelocity.x, 0, _horizontalVelocity.y) + Vector3.up * _verticalVelocity;
         _controller.Move(finalMove * Time.deltaTime);
 
-        if (controller.isGrounded && verticalVelocity < 0f)
+        if (_controller.isGrounded && _verticalVelocity < 0f)
         {
-            verticalVelocity = -2f;
+            _verticalVelocity = -2f;
         }
 
-        verticalVelocity += gravity * Time.deltaTime;
-        Vector3 finalMove = moveDirection * currentSpeed + Vector3.up * verticalVelocity;
-        controller.Move(finalMove * Time.deltaTime);
-
-        Vector2 lookInput = controls.Player.Look.ReadValue<Vector2>();
+        Vector2 lookInput = _controls.Player.Look.ReadValue<Vector2>();
 
         float mouseX = lookInput.x * _mouseSensitivity;
         float mouseY = lookInput.y * _mouseSensitivity;
@@ -146,11 +142,11 @@ public class PlayerMovement : MonoBehaviour
     }
     public void SetVerticalVelocity(float newVelocity)
     {
-        verticalVelocity = newVelocity;
+        _verticalVelocity = newVelocity;
     }
 
     public void SetCurrentSpeed(float speed)
     {
-        currentSpeed = speed;
+        _horizontalVelocity = _horizontalVelocity.normalized * speed;
     }
 }

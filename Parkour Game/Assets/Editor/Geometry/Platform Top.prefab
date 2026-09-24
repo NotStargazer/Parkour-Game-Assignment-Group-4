@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1019237363284306631
+--- !u!1 &6218786401273143154
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,65 +8,48 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8088163504410977628}
-  - component: {fileID: -6552438916990478152}
-  - component: {fileID: 603035058606145627}
-  - component: {fileID: -8295401217615771458}
-  - component: {fileID: 3686601944850384545}
-  - component: {fileID: -4257305361334255273}
+  - component: {fileID: 7284830931446525161}
+  - component: {fileID: 1682358087133307794}
+  - component: {fileID: 7671196253970361178}
+  - component: {fileID: 4054100959141310846}
+  - component: {fileID: 8607376767057616597}
   m_Layer: 0
-  m_Name: Platform
+  m_Name: Platform Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8088163504410977628
+--- !u!4 &7284830931446525161
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019237363284306631}
+  m_GameObject: {fileID: 6218786401273143154}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.45, z: 0}
   m_LocalScale: {x: 1, y: 0.1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-6552438916990478152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019237363284306631}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c407e3d551c94b3ebae0abf765993499, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Level.Platform
-  _isGeometry: 0
-  _renderer: {fileID: -8295401217615771458}
-  _filter: {fileID: 603035058606145627}
-  _endOffset: {x: 0, y: 0, z: 0}
---- !u!33 &603035058606145627
+--- !u!33 &1682358087133307794
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019237363284306631}
+  m_GameObject: {fileID: 6218786401273143154}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &-8295401217615771458
+--- !u!23 &7671196253970361178
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019237363284306631}
+  m_GameObject: {fileID: 6218786401273143154}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -85,7 +68,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 39032f2d05cc44e42be37ea2a28e9447, type: 2}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -109,13 +92,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &3686601944850384545
+--- !u!65 &4054100959141310846
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019237363284306631}
+  m_GameObject: {fileID: 6218786401273143154}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -130,18 +113,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-4257305361334255273
+--- !u!114 &8607376767057616597
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019237363284306631}
+  m_GameObject: {fileID: 6218786401273143154}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c79b53535cdf481b95831363ad19be3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Level.StaticGeometry
   _isGeometry: 0
-  _renderer: {fileID: -8295401217615771458}
-  _filter: {fileID: 603035058606145627}
+  _renderer: {fileID: 7671196253970361178}
+  _filter: {fileID: 1682358087133307794}

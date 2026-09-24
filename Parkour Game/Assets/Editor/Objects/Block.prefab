@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6342168033965291784}
   - component: {fileID: 603035058606145627}
   - component: {fileID: -8295401217615771458}
+  - component: {fileID: 8630597604843915904}
   m_Layer: 0
   m_Name: Block
   m_TagString: Untagged
@@ -46,10 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c79b53535cdf481b95831363ad19be3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Level.StaticGeometry
+  _isGeometry: 0
   _renderer: {fileID: -8295401217615771458}
   _filter: {fileID: 603035058606145627}
-  _position: {x: 0, y: 0, z: 0}
-  _scale: {x: 1, y: 1, z: 1}
 --- !u!33 &603035058606145627
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -107,3 +107,20 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8630597604843915904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019237363284306631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f625b7fc688045b4fa6c6eb8147adac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelBlock
+  _levelObjects: []
+  _height: 2
+  _expanse: {x: 1, y: 1, z: 1, w: 1}
+  _entrance: {x: 0, y: 0}
+  _exit: {x: 0, y: 0}
