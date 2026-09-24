@@ -71,7 +71,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2de8c92736582b648a301b406a1c613f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  _jumpForce: 6
+  _jumpForce: 15
   _maxSpeed: 15
   _gravity: -15
   _cameraTransform: {fileID: 1180763067215420042}
