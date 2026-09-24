@@ -137,7 +137,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Level.Token
   _isGeometry: 0
-  _sphereCollider: {fileID: 7309097002445123944}
   _renderer: {fileID: 4014333728084688293}
   _filter: {fileID: 6209214284967375974}
   _tokenTransform: {fileID: 7830440259820535431}
@@ -158,7 +157,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

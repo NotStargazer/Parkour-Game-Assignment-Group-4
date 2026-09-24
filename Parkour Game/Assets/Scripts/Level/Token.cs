@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Level
 {
+    [RequireComponent(typeof(SphereCollider))]
     public class Token : MonoBehaviour, ILevelObject
     {
         [SerializeField] private bool _isGeometry;
-        [SerializeField] private SphereCollider _sphereCollider;
         [SerializeField] private MeshRenderer _renderer;
         [SerializeField] private MeshFilter _filter;
         [SerializeField] private Transform _tokenTransform;
@@ -38,10 +39,10 @@ namespace Level
         {
             _tokenTransform.Rotate(Vector3.up, _rotationsPerSecond * Time.deltaTime);
         }
-
-        private void OnCollisionEnter(Collision collision)
+        
+        private void OnTriggerEnter(Collider other)
         {
-            if (collision.gameObject.TryGetComponent(out CharacterController controller))
+            if (other.gameObject.TryGetComponent<CharacterController>(out _))
             {
                 //GameManager.Instance.CollectToken(_score);
                 gameObject.SetActive(false);
@@ -50,9 +51,9 @@ namespace Level
 
         private void OnValidate()
         {
-            if (!TryGetComponent(out _sphereCollider))
+            if (TryGetComponent(out SphereCollider sphereCollider))
             {
-                _sphereCollider = gameObject.AddComponent<SphereCollider>();
+                sphereCollider.isTrigger = true;
             }
         }
     }
