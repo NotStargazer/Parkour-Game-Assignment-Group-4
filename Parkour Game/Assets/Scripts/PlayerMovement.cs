@@ -1,3 +1,4 @@
+using Level;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -132,6 +133,14 @@ public class PlayerMovement : MonoBehaviour
         _xRotation -= mouseY;
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
         _cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if(hit.gameObject.TryGetComponent(out MovingPlatform platform))
+        {
+            _controller.Move(platform.MoveDifference);
+        }
     }
 
     private void Jump(InputAction.CallbackContext context)
