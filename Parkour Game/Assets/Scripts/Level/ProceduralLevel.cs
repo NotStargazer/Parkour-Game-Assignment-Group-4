@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Utility;
@@ -60,7 +61,7 @@ namespace Level
 #if UNITY_EDITOR
                 if (i == 0 && _firstBlock != "None")
                 {
-                    levelIndex = _instantiatedLevelBlocks.FindIndex(p => p.name == _firstBlock);
+                    levelIndex = Array.FindIndex(_levelBlocks, p => p.name == _firstBlock);
                 }
                 else
                 {

@@ -25,7 +25,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 _horizontalVelocity;
 
     private Vector2 _smoothVelocity;
-    
+
+    public float Speed { get => _horizontalVelocity.magnitude; }
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -103,11 +105,11 @@ public class PlayerMovement : MonoBehaviour
             _verticalVelocity = -2f;
         }
 
-        if (_controller.isGrounded)
+        if (_controller.isGrounded && _verticalVelocity <= 0f)
         {
             _coyoteTimer = _coyoteTime;
         }
-        else 
+        else
         {
             _coyoteTimer -= Time.deltaTime;
         }
@@ -116,9 +118,9 @@ public class PlayerMovement : MonoBehaviour
         Vector3 finalMove = new Vector3(_horizontalVelocity.x, 0, _horizontalVelocity.y) + Vector3.up * _verticalVelocity;
         _controller.Move(finalMove * Time.deltaTime);
 
-        if ((_controller.collisionFlags & CollisionFlags.Sides) != 0)
+        if (_controller.isGrounded && _verticalVelocity < 0f)
         {
-            _horizontalVelocity = Vector2.zero;
+            _verticalVelocity = -2f;
         }
 
         Vector2 lookInput = _controls.Player.Look.ReadValue<Vector2>();
@@ -139,5 +141,14 @@ public class PlayerMovement : MonoBehaviour
             _verticalVelocity = _jumpForce;
             _coyoteTimer = 0f;
         }
+    }
+    public void SetVerticalVelocity(float newVelocity)
+    {
+        _verticalVelocity = newVelocity;
+    }
+
+    public void SetHorizontalVelocity(Vector2 velocity)
+    {
+        _horizontalVelocity = velocity;
     }
 }
