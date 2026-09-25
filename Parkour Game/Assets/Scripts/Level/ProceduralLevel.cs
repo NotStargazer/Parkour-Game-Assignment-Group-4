@@ -9,10 +9,12 @@ namespace Level
 {
     public class ProceduralLevel : MonoBehaviour
     {
+        [SerializeField] private Transform _playerTransform;
         [SerializeField] private LevelGate _levelGate;
         [SerializeField] private LevelBlock _startBlock;
         [SerializeField] private LevelBlock[] _levelBlocks;
         [SerializeField] private int _aheadBlocks;
+        [SerializeField] private float _deathPlaneOffset;
 #if UNITY_EDITOR
         [AssetSelector("/Level Blocks", "prefab")] [SerializeField]
         private string _firstBlock;
@@ -27,6 +29,8 @@ namespace Level
         private List<LevelBlock> _spawnedBlocks;
         
         private LevelGate LevelGate => _usingBuffer ? _levelGateA : _levelGateB;
+        private Plane _killPlane;
+        private bool _playerDead;
 
         private void Awake()
         {
@@ -50,10 +54,12 @@ namespace Level
                 newBlock.BlockIndex = index++;
                 _instantiatedLevelBlocks.Add(newBlock);
             }
-            
+
             //Set the first gates position relative to the first block
-            _levelGateA.ResetGate(_currentBlocks.Peek().EndGatePosition, SpawnNextBlock);
-            
+            var firstBlock = _currentBlocks.Peek();
+            _levelGateA.ResetGate(firstBlock.EndGatePosition, SpawnNextBlock);
+            _killPlane = new Plane(Vector3.up, firstBlock.transform.position + new Vector3(0, _deathPlaneOffset, 0));
+
             //Set up the blocks ahead of initial block
             for (var i = 0; i < _aheadBlocks; i++)
             {
@@ -76,6 +82,15 @@ namespace Level
                 _spawnedBlocks.Add(block);
                 block.Place(_lastEnqueued.EndGatePosition);
                 _lastEnqueued = block;
+            }
+        }
+
+        private void Update()
+        {
+            if (!_killPlane.GetSide(_playerTransform.position) && !_playerDead)
+            {
+                _playerDead = true;
+                GameManager.Instance.FallToDeath();
             }
         }
 
@@ -116,7 +131,9 @@ namespace Level
             
             //Grab the last segment and place next the block at the end
             block.Place(_lastEnqueued.EndGatePosition);
-            gate.ResetGate(_currentBlocks.Peek().EndGatePosition, SpawnNextBlock);
+            var gateBlock = _currentBlocks.Peek();
+            gate.ResetGate(gateBlock.EndGatePosition, SpawnNextBlock);
+            _killPlane = new Plane(Vector3.up, gateBlock.transform.position + new Vector3(0, _deathPlaneOffset, 0));
             _lastEnqueued = block;
         }
 

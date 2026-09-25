@@ -1,4 +1,5 @@
 using Level;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -28,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 _smoothVelocity;
 
     public float Speed { get => _horizontalVelocity.magnitude; }
+    public float MaxSpeed { get => _maxSpeed; }
 
     private void Awake()
     {
@@ -126,8 +128,8 @@ public class PlayerMovement : MonoBehaviour
 
         Vector2 lookInput = _controls.Player.Look.ReadValue<Vector2>();
 
-        float mouseX = lookInput.x * _mouseSensitivity;
-        float mouseY = lookInput.y * _mouseSensitivity;
+        float mouseX = lookInput.x * _mouseSensitivity * Time.deltaTime;
+        float mouseY = lookInput.y * _mouseSensitivity * Time.deltaTime;
         transform.Rotate(Vector3.up * mouseX);
 
         _xRotation -= mouseY;
@@ -145,6 +147,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump(InputAction.CallbackContext context)
     {
+
         if (_coyoteTimer > 0f)
         {
             _verticalVelocity = _jumpForce;

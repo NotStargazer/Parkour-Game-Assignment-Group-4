@@ -11,7 +11,7 @@ namespace Level
         [SerializeField] private MeshFilter _filter;
         [SerializeField] private Transform _tokenTransform;
         [SerializeField] private float _rotationsPerSecond;
-        [SerializeField] private float _score;
+        [SerializeField] private int _score;
         
         public bool IsGeometry
         {
@@ -44,14 +44,14 @@ namespace Level
         
         private void Update()
         {
-            _tokenTransform.Rotate(Vector3.up, _rotationsPerSecond * Time.deltaTime);
+            _tokenTransform.Rotate(Vector3.up, _rotationsPerSecond * 360 * Time.deltaTime);
         }
         
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.TryGetComponent<CharacterController>(out _))
             {
-                //GameManager.Instance.CollectToken(_score);
+                GameManager.Instance.AddScore(_score);
                 gameObject.SetActive(false);
             }
         }
