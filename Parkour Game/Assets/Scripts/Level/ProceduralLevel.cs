@@ -68,7 +68,7 @@ namespace Level
                     levelIndex = Random.Range(0, _instantiatedLevelBlocks.Count);
                 }
 #else
-                var levelIndex = Random.Range(0, _instantiatedLevelBlocks.Count);
+                levelIndex = Random.Range(0, _instantiatedLevelBlocks.Count);
 #endif
                 var block = _instantiatedLevelBlocks[levelIndex];
                 _instantiatedLevelBlocks.RemoveAt(levelIndex);
