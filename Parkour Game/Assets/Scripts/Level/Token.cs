@@ -35,6 +35,8 @@ namespace Level
             gameObject.SetActive(true);
         }
         
+        public void Regenerate() { }
+        
         private void Update()
         {
             _tokenTransform.Rotate(Vector3.up, _rotationsPerSecond * Time.deltaTime);

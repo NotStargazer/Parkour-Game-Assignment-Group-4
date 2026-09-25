@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Utility;
 
 namespace Level
 {
-    public class StaticGeometry : MonoBehaviour, ILevelObject
+    [RequireComponent(typeof(MeshCollider))]
+    public class SlopePlatform : MonoBehaviour, ILevelObject
     {
         [SerializeField] private bool _isGeometry;
         [SerializeField] private MeshRenderer _renderer;
         [SerializeField] private MeshFilter _filter;
+        [ShowInLevelEditor] [SerializeField] private float _slopeThickness;
         [ShowInLevelEditor] [SerializeField] private Material _material;
 
         public bool IsGeometry
@@ -33,12 +34,12 @@ namespace Level
         {
             //Play some sort of animation here
         }
-        
+
         public void Regenerate()
         {
             CreateMesh();
         }
-
+        
         private void Awake()
         {
             CreateMesh();
@@ -46,6 +47,8 @@ namespace Level
 
         private void OnValidate()
         {
+            _slopeThickness = Mathf.Max(0.05f, _slopeThickness);
+            
             if (!TryGetComponent(out _filter))
             {
                 _filter = gameObject.AddComponent<MeshFilter>();
@@ -62,10 +65,16 @@ namespace Level
 
         private void CreateMesh()
         {
-            _filter.sharedMesh = MeshBuilder.CreateUVScaledCubeMesh(transform.localScale, "StaticGeometry");
+            var mesh = MeshBuilder.CreateUVScaledSlopeMesh(transform.localScale, _slopeThickness, "SlopePlatform");
+            _filter.sharedMesh = mesh;
             if (_material)
             {
                 _renderer.material = _material;
+            }
+
+            if (TryGetComponent(out MeshCollider meshCollider))
+            {
+                meshCollider.sharedMesh = mesh;
             }
         }
     }

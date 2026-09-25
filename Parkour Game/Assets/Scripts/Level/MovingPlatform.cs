@@ -41,6 +41,11 @@ namespace Level
             _startTime = Time.deltaTime;
         }
 
+        public void Regenerate()
+        {
+            CreateMesh();
+        }
+
         private void Awake()
         {
             _start = transform.position;
@@ -97,7 +102,7 @@ namespace Level
         
         private void CreateMesh()
         {
-            _filter.sharedMesh = MeshBuilder.CreateUVScaledCubeMesh(transform.localScale, "StaticGeometry");
+            _filter.sharedMesh = MeshBuilder.CreateUVScaledCubeMesh(transform.localScale, "MovingPlatform");
             if (_material)
             {
                 _renderer.material = _material;

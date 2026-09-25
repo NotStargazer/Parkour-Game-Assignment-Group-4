@@ -10,5 +10,6 @@ namespace Level
         Vector3 Position { get; set; }
         GameObject GameObject { get; }
         public void Spawn();
+        void Regenerate();
     }
 }

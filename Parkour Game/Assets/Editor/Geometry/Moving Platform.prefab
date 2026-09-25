@@ -51,7 +51,7 @@ MonoBehaviour:
   _renderer: {fileID: -8295401217615771458}
   _filter: {fileID: 603035058606145627}
   _endOffset: {x: 0, y: 0, z: 0}
-  _material: {fileID: 0}
+  _material: {fileID: 2100000, guid: 319eceb680f53f94a9f35becbdbd70bc, type: 2}
   _pathAnimation:
     serializedVersion: 2
     m_Curve:
@@ -128,7 +128,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 39032f2d05cc44e42be37ea2a28e9447, type: 2}
+  - {fileID: 2100000, guid: 319eceb680f53f94a9f35becbdbd70bc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -252,7 +252,10 @@ namespace LevelEditor
                         rot.quaternionValue = Quaternion.Euler(EditorGUILayout.Vector3Field("Rotation", rot.quaternionValue.eulerAngles));
                     }
                 }
-                _selectionTransform.ApplyModifiedProperties();
+                if (_selectionTransform.ApplyModifiedProperties())
+                {
+                    CurrentSelection.Regenerate();
+                }
                 _selectionObject.Update();
                 {
                     var iterator = _selectionObject.GetIterator();
@@ -312,7 +315,10 @@ namespace LevelEditor
                 pos.vector3Value = posVal;
                 scl.vector3Value = sclVal;
                 rot.quaternionValue = rotVal;
-                _selectionTransform.ApplyModifiedProperties();
+                if (_selectionTransform.ApplyModifiedProperties())
+                {
+                    CurrentSelection.Regenerate();
+                }
             }
             
             if (Event.current.isKey)
