@@ -43,15 +43,15 @@ public class GameManager : SingletonBehaviour<GameManager>
 
         if (Keyboard.current.qKey.wasPressedThisFrame)
         {
-            AddScore();
+            AddScore(_scoreAmount);
         }
     }
 
-    void AddScore()
+    void AddScore(int score)
     {
         _timer += _timeAmount;
-        Score += _scoreAmount;
-        _increaseScoreEvent?.Invoke(_scoreAmount);
+        Score += score;
+        _increaseScoreEvent?.Invoke(score);
     }
 
     public void AddGameOverEvent(Action<string> gameOverEvent) //Invoked by PlayerHUD, establishes connection for gameOver screen

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -28,6 +29,9 @@ public class PlayerMovement : MonoBehaviour
 
     public float Speed { get => _horizontalVelocity.magnitude; }
     public float MaxSpeed { get => _maxSpeed; }
+
+    public event Action OnJump;
+    public event Action OnLand;
 
     private void Awake()
     {
@@ -142,6 +146,7 @@ public class PlayerMovement : MonoBehaviour
         {
             _verticalVelocity = _jumpForce;
             _coyoteTimer = 0f;
+            OnJump?.Invoke();
         }
     }
 }
