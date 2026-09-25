@@ -87,7 +87,7 @@ public class PlayerSlideMovement : MonoBehaviour
         PerformSlide();
 
         // End the slide when released or out of speed, but only if there's room to stand up
-        bool outOfSpeed = playerMovement.currentSpeed <= stopSpeed && controller.isGrounded;
+        bool outOfSpeed = playerMovement.Speed <= stopSpeed && controller.isGrounded;
         if ((wantsToStop || outOfSpeed) && CanStandUp())
         {
             StopSlide();
@@ -102,7 +102,7 @@ public class PlayerSlideMovement : MonoBehaviour
         }
 
         // Only slide on the ground and when moving fast enough
-        if (!controller.isGrounded || playerMovement.currentSpeed < minSpeedToSlide)
+        if (!controller.isGrounded || playerMovement.Speed < minSpeedToSlide)
         {
             return;
         }
@@ -165,19 +165,19 @@ public class PlayerSlideMovement : MonoBehaviour
                 if (incline < -0.05f)
                 {
                     // Downhill: speed up based on steepness
-                    playerMovement.currentSpeed += Mathf.Abs(incline) * slopeAcceleration * Time.deltaTime;
-                    playerMovement.currentSpeed = Mathf.Min(playerMovement.currentSpeed, maxSlideSpeed);
+                    playerMovement.Speed += Mathf.Abs(incline) * slopeAcceleration * Time.deltaTime;
+                    playerMovement.Speed = Mathf.Min(playerMovement.Speed, maxSlideSpeed);
                 }
                 else if (incline > 0.05f)
                 {
                     // Uphill: lose speed quickly, never below zero
-                    playerMovement.currentSpeed -= incline * uphillResistance * Time.deltaTime;
-                    playerMovement.currentSpeed = Mathf.Max(playerMovement.currentSpeed, 0f);
+                    playerMovement.Speed -= incline * uphillResistance * Time.deltaTime;
+                    playerMovement.Speed = Mathf.Max(playerMovement.Speed, 0f);
                 }
                 else
                 {
                     // Flat: normal friction
-                    playerMovement.currentSpeed = Mathf.MoveTowards(playerMovement.currentSpeed, 0f, slideFriction * Time.deltaTime);
+                    playerMovement.Speed = Mathf.MoveTowards(playerMovement.Speed, 0f, slideFriction * Time.deltaTime);
                 }
 
                 moveDirection = slopeDirection;
@@ -185,18 +185,18 @@ public class PlayerSlideMovement : MonoBehaviour
             else
             {
                 // Fallback if the raycast misses
-                playerMovement.currentSpeed = Mathf.MoveTowards(playerMovement.currentSpeed, 0f, slideFriction * Time.deltaTime);
+                playerMovement.Speed = Mathf.MoveTowards(playerMovement.Speed, 0f, slideFriction * Time.deltaTime);
             }
         }
         // In the air: keep horizontal speed, no friction
 
-        Vector3 slideMove = moveDirection * playerMovement.currentSpeed + Vector3.up * verticalVelocity;
+        Vector3 slideMove = moveDirection * playerMovement.Speed + Vector3.up * verticalVelocity;
         controller.Move(slideMove * Time.deltaTime);
 
         // Hit a wall: kill the speed (the slide then ends via the stop check)
         if ((controller.collisionFlags & CollisionFlags.Sides) != 0)
         {
-            playerMovement.currentSpeed = 0f;
+            playerMovement.Speed = 0f;
         }
     }
 

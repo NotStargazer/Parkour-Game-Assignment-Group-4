@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector2 _smoothVelocity;
     
+    
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -51,7 +52,7 @@ public class PlayerMovement : MonoBehaviour
         Vector2 moveDirection = new Vector2(moveDirection3.x, moveDirection3.z);
         moveDirection = moveDirection.normalized;
 
-        if (!isSliding)
+        if (!isSliding && moveInput != Vector2.zero)
         {
             float acceleration;
             Vector2 currentDirection = _horizontalVelocity.normalized;
