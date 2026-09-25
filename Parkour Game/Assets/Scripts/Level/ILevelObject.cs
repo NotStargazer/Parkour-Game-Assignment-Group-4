@@ -8,6 +8,7 @@ namespace Level
         Mesh Mesh { get; }
         Vector3 Scale { get; set; }
         Vector3 Position { get; set; }
+        Quaternion Rotation { get; set; }
         GameObject GameObject { get; }
         public void Spawn();
         void Regenerate();

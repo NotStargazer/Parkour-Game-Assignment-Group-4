@@ -2,6 +2,7 @@
 using Level;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace LevelEditor
 {
@@ -309,32 +310,36 @@ namespace LevelEditor
             if (plane.Raycast(ray, out var enter))
             {
                 var point = ray.GetPoint(enter);
-                
                 point = new Vector3(
                     Mathf.Clamp(point.x, 0.5f - expanse.x, expanse.y - 0.5f),
                     height,
                     Mathf.Clamp(point.z, 0.5f - expanse.z, expanse.w - 0.5f));
                 point = Snapping.Snap(point, EditorSnapSettings.gridSize);
                 Handles.color = new Color(0.75f, 0.9f, 1f, 0.35f);
-                DrawMesh(levelObject.Mesh, point, levelObject.Scale);
+                var prior = Handles.zTest;
+                Handles.zTest = CompareFunction.LessEqual;
+                DrawMesh(levelObject.Mesh, point, levelObject.Scale, levelObject.Rotation);
+                Handles.zTest = prior;
                 return point;
             }
             
             return Vector3.zero;
         }
 
-        public static void DrawMesh(Mesh mesh, Vector3 position, Vector3 scale)
+        public static void DrawMesh(Mesh mesh, Vector3 position, Vector3 scale, Quaternion rotation)
         {
             for (var i = 0; i < mesh.triangles.Length; i += 3)
             {
                 var t1 = mesh.triangles[i];
                 var t2 = mesh.triangles[i + 1];
                 var t3 = mesh.triangles[i + 2];
-                Handles.DrawAAConvexPolygon(
-                    new Vector3(mesh.vertices[t1].x * scale.x, mesh.vertices[t1].y * scale.y, mesh.vertices[t1].z * scale.z) + position,
-                    new Vector3(mesh.vertices[t2].x * scale.x, mesh.vertices[t2].y * scale.y, mesh.vertices[t2].z * scale.z) + position,
-                    new Vector3(mesh.vertices[t3].x * scale.x, mesh.vertices[t3].y * scale.y, mesh.vertices[t3].z * scale.z) + position,
-                    new Vector3(mesh.vertices[t1].x * scale.x, mesh.vertices[t1].y * scale.y, mesh.vertices[t1].z * scale.z) + position);
+                
+                var v1 = rotation * new Vector3(mesh.vertices[t1].x * scale.x, mesh.vertices[t1].y * scale.y, mesh.vertices[t1].z * scale.z) + position;
+                var v2 = rotation * new Vector3(mesh.vertices[t2].x * scale.x, mesh.vertices[t2].y * scale.y, mesh.vertices[t2].z * scale.z) + position;
+                var v3 = rotation * new Vector3(mesh.vertices[t3].x * scale.x, mesh.vertices[t3].y * scale.y, mesh.vertices[t3].z * scale.z) + position;
+                var v4 = rotation * new Vector3(mesh.vertices[t1].x * scale.x, mesh.vertices[t1].y * scale.y, mesh.vertices[t1].z * scale.z) + position;
+                
+                Handles.DrawAAConvexPolygon(v1, v2, v3, v4);
             }
         }
 

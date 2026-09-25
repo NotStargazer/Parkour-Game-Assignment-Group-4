@@ -34,6 +34,11 @@ namespace Level
             get => transform.localScale;
             set => transform.localScale = value;
         }
+        public Quaternion Rotation
+        {
+            get => transform.rotation;
+            set => transform.rotation = value;
+        }
         public GameObject GameObject => gameObject;
 
         public void Spawn()

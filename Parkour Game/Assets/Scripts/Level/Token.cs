@@ -26,8 +26,13 @@ namespace Level
         }
         public Vector3 Scale
         {
-            get => transform.localScale;
-            set => transform.localScale = value;
+            get => _renderer.transform.localScale;
+            set => _renderer.transform.localScale = value;
+        }
+        public Quaternion Rotation
+        {
+            get => _renderer.transform.rotation;
+            set => _renderer.transform.rotation = value;
         }
         public GameObject GameObject => gameObject;
         public void Spawn()
