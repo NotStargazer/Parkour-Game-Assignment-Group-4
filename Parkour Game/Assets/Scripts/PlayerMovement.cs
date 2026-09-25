@@ -18,15 +18,24 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _coyoteTime = 0.2f;
     [SerializeField] private float _breakingForce;
     [SerializeField] private AnimationCurve _accelerationCurve;
+
+    // Serialized Due to playerSlideMovement
+    [SerializeField] private Vector2 _horizontalVelocity;
+
     private float _coyoteTimer;
     private float _xRotation;
     private Vector3 _lastMoveDirection;
     private float _verticalVelocity;
-    private Vector2 _horizontalVelocity;
+    public Vector2 HorizontalVelocity
+    {
+        get => _horizontalVelocity;
+        set => _horizontalVelocity = value;
+    }
 
     private Vector2 _smoothVelocity;
-    
-    
+
+    public bool IsSliding { get; set; }
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -52,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
         Vector2 moveDirection = new Vector2(moveDirection3.x, moveDirection3.z);
         moveDirection = moveDirection.normalized;
 
-        if (!isSliding && moveInput != Vector2.zero)
+        if (IsSliding && moveInput != Vector2.zero)
         {
             float acceleration;
             Vector2 currentDirection = _horizontalVelocity.normalized;
@@ -73,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
                 Vector2 newDirection = Vector2.SmoothDamp(currentDirection, moveDirection, ref _smoothVelocity, _turnTime);
                 _horizontalVelocity = newDirection.normalized * speed;
             }
-            
+
             float speedIncrease = acceleration * Time.deltaTime;
             _horizontalVelocity += moveDirection * speedIncrease;
             _horizontalVelocity = Vector2.ClampMagnitude(_horizontalVelocity, _maxSpeed);
@@ -82,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 _lastMoveDirection = moveDirection;
             }
-            else 
+            else
             {
                 _lastMoveDirection = Vector3.Lerp(_lastMoveDirection, moveDirection, _airControlPercentage * Time.deltaTime);
             }
@@ -108,11 +117,11 @@ public class PlayerMovement : MonoBehaviour
         {
             _coyoteTimer = _coyoteTime;
         }
-        else 
+        else
         {
             _coyoteTimer -= Time.deltaTime;
         }
-        
+
         _verticalVelocity += _gravity * Time.deltaTime;
         Vector3 finalMove = new Vector3(_horizontalVelocity.x, 0, _horizontalVelocity.y) + Vector3.up * _verticalVelocity;
         _controller.Move(finalMove * Time.deltaTime);
