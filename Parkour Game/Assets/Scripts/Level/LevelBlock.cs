@@ -44,6 +44,7 @@ public class LevelBlock : MonoBehaviour
 
     private void OnValidate()
     {
+#if UNITY_EDITOR
         if (_levelObjects == null) return;
 
         for (int i = _levelObjects.Length - 1; i >= 0; i--)
@@ -53,6 +54,7 @@ public class LevelBlock : MonoBehaviour
                 UnityEditor.ArrayUtility.RemoveAt(ref _levelObjects, i);
             }
         }
+#endif
     }
 }
 

@@ -318,6 +318,10 @@ namespace LevelEditor
                 Handles.color = new Color(0.75f, 0.9f, 1f, 0.35f);
                 var prior = Handles.zTest;
                 Handles.zTest = CompareFunction.LessEqual;
+                if (!levelObject.Mesh)
+                {
+                    levelObject.Regenerate();
+                }
                 DrawMesh(levelObject.Mesh, point, levelObject.Scale, levelObject.Rotation);
                 Handles.zTest = prior;
                 return point;

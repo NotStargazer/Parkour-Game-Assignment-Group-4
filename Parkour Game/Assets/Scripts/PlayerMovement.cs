@@ -25,7 +25,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 _horizontalVelocity;
 
     private Vector2 _smoothVelocity;
-    
+
+    public float Speed { get => _horizontalVelocity.magnitude; }
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -103,7 +105,7 @@ public class PlayerMovement : MonoBehaviour
             _verticalVelocity = -2f;
         }
 
-        if (_controller.isGrounded)
+        if (_controller.isGrounded && _verticalVelocity <= 0f)
         {
             _coyoteTimer = _coyoteTime;
         }
@@ -145,8 +147,8 @@ public class PlayerMovement : MonoBehaviour
         _verticalVelocity = newVelocity;
     }
 
-    public void SetCurrentSpeed(float speed)
+    public void SetHorizontalVelocity(Vector2 velocity)
     {
-        _horizontalVelocity = _horizontalVelocity.normalized * speed;
+        _horizontalVelocity = velocity;
     }
 }

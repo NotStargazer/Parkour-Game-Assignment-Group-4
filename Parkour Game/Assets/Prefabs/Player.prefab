@@ -136,28 +136,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2de8c92736582b648a301b406a1c613f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  _jumpForce: 6
+  _jumpForce: 12
   _maxSpeed: 15
-  _gravity: -15
+  _gravity: -30
   _cameraTransform: {fileID: 1180763067215420042}
   _mouseSensitivity: 0.3
   _deceleration: 25
   _airControlPercentage: 2
   _turnTime: 0.2
-  _coyoteTime: 0.2
-  _breakingForce: 30
+  _coyoteTime: 0.5
+  _breakingForce: 60
   _accelerationCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 60
+      value: 45
       inSlope: -19
-      outSlope: -51.07485
+      outSlope: -97.77142
       tangentMode: 1
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.0745794
+      outWeight: 0.057037108
     - serializedVersion: 3
       time: 1
       value: 1
@@ -191,12 +191,12 @@ MonoBehaviour:
   sphereCastRadius: 0.2
   stickDistance: 0.8
   maxAngleDeviance: 30
-  baseSpeed: 8
+  baseSpeed: 13
   stickDuration: 1
   stickCooldown: 0.5
-  wallJumpUpForce: 8
-  wallJumpPushForce: 6
-  wallClimbForce: 12
+  wallJumpUpForce: 12
+  wallJumpPushForce: 20
+  wallClimbForce: 16
   rotationSmoothness: 15
 --- !u!1 &9145381769296316932
 GameObject:

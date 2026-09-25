@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.LightAnchor;
 
 [RequireComponent(typeof(PlayerMovement), typeof(CharacterController))]
 public class WallSystem : MonoBehaviour
@@ -17,9 +18,6 @@ public class WallSystem : MonoBehaviour
     [SerializeField] private float sphereCastRadius = 0.2f;
     [SerializeField] private float stickDistance = 0.8f;
     [SerializeField] private float maxAngleDeviance = 15f;
-
-    [Header("wall run")]
-    [SerializeField] private float baseSpeed = 8f;
 
     [Header("wall stick")]
     [SerializeField] private float stickDuration = 1.0f;
@@ -42,6 +40,7 @@ public class WallSystem : MonoBehaviour
     private Vector3 wallTangent;
     private Vector3 currentWallNormal;
     private Coroutine activeRotationRoutine;
+    private float wallRunSpeed;
 
     public bool IsWallRunning => currentState == WallState.Running;
     public bool IsWallStuck => currentState == WallState.Stuck;
@@ -122,6 +121,7 @@ public class WallSystem : MonoBehaviour
         currentState = WallState.Running;
         playerMovement.enabled = false;
         playerMovement.SetVerticalVelocity(0f);
+        wallRunSpeed = playerMovement.Speed;
 
         if (wallTangent != Vector3.zero)
         {
@@ -139,7 +139,7 @@ public class WallSystem : MonoBehaviour
             return;
         }
 
-        Vector3 moveVelocity = wallTangent * baseSpeed;
+        Vector3 moveVelocity = wallTangent * wallRunSpeed;
         controller.Move(moveVelocity * Time.deltaTime);
 
         Vector3 directionToWall = -currentWallNormal;
@@ -175,9 +175,10 @@ public class WallSystem : MonoBehaviour
         if (currentState == WallState.Running)
         {
             ExitState();
-            if (!torsoHit)
+            if (torsoHit)
             {
                 playerMovement.SetVerticalVelocity(wallClimbForce);
+                playerMovement.SetHorizontalVelocity(Vector2.zero);
             }
             else
             {
@@ -186,8 +187,7 @@ public class WallSystem : MonoBehaviour
                 SmoothRotateTowards(new Vector3(jumpDirection.x, 0f, jumpDirection.z).normalized);
 
                 playerMovement.SetVerticalVelocity(wallJumpUpForce);
-                playerMovement.SetCurrentSpeed(baseSpeed);
-                controller.Move(jumpDirection * baseSpeed * Time.deltaTime * 1.5f);
+                playerMovement.SetHorizontalVelocity(jumpDirection * wallJumpPushForce);
             }
         }
         else if (currentState == WallState.Stuck)
@@ -196,11 +196,11 @@ public class WallSystem : MonoBehaviour
 
             if (torsoHit)
             {
-                Vector3 pushDirection = new Vector3(currentWallNormal.x, 0f, currentWallNormal.z).normalized;
+                Vector3 pushDirection = new Vector3(currentWallNormal.x, 0f, currentWallNormal.z);
                 SmoothRotateTowards(pushDirection);
 
                 playerMovement.SetVerticalVelocity(wallJumpUpForce);
-                controller.Move(pushDirection * wallJumpPushForce * Time.deltaTime * 10f);
+                playerMovement.SetHorizontalVelocity(pushDirection * wallJumpPushForce);
             }
             else
             {
@@ -212,7 +212,6 @@ public class WallSystem : MonoBehaviour
     {
         currentState = WallState.None;
         cooldownTimer = stickCooldown;
-        playerMovement.SetCurrentSpeed(baseSpeed);
         playerMovement.enabled = true;
     }
     private void SmoothRotateTowards(Vector3 targetDirection)

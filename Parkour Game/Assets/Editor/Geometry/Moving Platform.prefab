@@ -189,3 +189,4 @@ MonoBehaviour:
   _isGeometry: 0
   _renderer: {fileID: -8295401217615771458}
   _filter: {fileID: 603035058606145627}
+  _material: {fileID: 0}
