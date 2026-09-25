@@ -11,7 +11,7 @@ public class LevelBlock : MonoBehaviour
     [SerializeField] private Vector2 _exit;
 
     private ILevelObject[] _levelObjectInterfaces;
-    public Vector3 EndGatePosition => 
+    public Vector3 EndGatePosition =>
         transform.position + new Vector3(_exit.x, _exit.y + transform.localScale.y * 0.5f, _expanse.w);
     public int BlockIndex { get; set; }
 
@@ -27,7 +27,7 @@ public class LevelBlock : MonoBehaviour
     public void Place(Vector3 previousEndGate)
     {
         gameObject.SetActive(true);
-        var placePosition = 
+        var placePosition =
             -new Vector3(_entrance.x, _entrance.y + transform.localScale.y * 0.5f, -_expanse.z) + previousEndGate;
         StartCoroutine(SpawnRoutine());
         transform.position = placePosition;
@@ -41,4 +41,20 @@ public class LevelBlock : MonoBehaviour
             yield return new WaitForSeconds(0.01f);
         }
     }
+
+    private void OnValidate()
+    {
+#if UNITY_EDITOR
+        if (_levelObjects == null) return;
+
+        for (int i = _levelObjects.Length - 1; i >= 0; i--)
+        {
+            if (_levelObjects[i] == null)
+            {
+                UnityEditor.ArrayUtility.RemoveAt(ref _levelObjects, i);
+            }
+        }
+#endif
+    }
 }
+
