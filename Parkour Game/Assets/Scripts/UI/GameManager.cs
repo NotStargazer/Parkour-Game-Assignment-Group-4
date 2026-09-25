@@ -1,12 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 using Utility;
+
+[Serializable]
+public struct ScoreBoardData
+{
+    [SerializeField] public List<ScoreBoardEntry> ScoreBoardEntries;
+}
+
+[Serializable]
+public struct ScoreBoardEntry
+{
+    [SerializeField] public string Name;
+    [SerializeField] public int Score;
+}
 
 public class GameManager : SingletonBehaviour<GameManager>
 {
@@ -16,6 +26,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     public float Timer { get => _timer; }
     [SerializeField] private float _maxTime;
     public float MaxTime { get => _maxTime; }
+    public float MouseSens { get; set; }
     public bool IsGameOver => _isGameOver;
 
     public IReadOnlyCollection<ScoreBoardEntry> ScoreBoardEntries => _scoreBoardData.ScoreBoardEntries;
@@ -28,16 +39,13 @@ public class GameManager : SingletonBehaviour<GameManager>
     [SerializeField] private float _timeAmount;
 
     private ScoreBoardData _scoreBoardData;
+    private float _actualMax;
 
     public override void Instantiate() //START FUNCTION
     {
+        MouseSens = 20;
         LoadScores();
-        _timer = _maxTime;
-        _gameOverEvent = _ =>
-        {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
-        };
+        _actualMax = _maxTime;
     }
 
     private void LoadScores()
@@ -46,8 +54,18 @@ public class GameManager : SingletonBehaviour<GameManager>
 
         //LOAD LOGIC
 
-        string jsonRead = File.ReadAllText(path);
-        _scoreBoardData = JsonUtility.FromJson<ScoreBoardData>(jsonRead);
+        if (File.Exists(path))
+        {
+            string jsonRead = File.ReadAllText(path);
+            _scoreBoardData = JsonUtility.FromJson<ScoreBoardData>(jsonRead);
+        }
+        else
+        {
+            _scoreBoardData = new ScoreBoardData
+            {
+                ScoreBoardEntries = new List<ScoreBoardEntry>()
+            };
+        }
     }
 
     public void SaveScore(string name)
@@ -60,21 +78,26 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     public void StartSession()
     {
+        _gameOverEvent = null;
+        _increaseScoreEvent = null;
+        
+        _gameOverEvent = _ =>
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        };
+        
         Score = 0;
-        _timer = _maxTime;
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-        UnityEngine.Cursor.visible = false;
+        _maxTime = _actualMax;
+        _timer = _maxTime + 1;
+        _isGameOver = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update() //UPDATE
     {
-
         _timer -= Time.deltaTime;
-
-        //Animations
-
-        float timeProgress = Mathf.InverseLerp(_maxTime, 0, _timer);
-
         
         if (Timer <= 0 && !_isGameOver)
         {
@@ -90,8 +113,9 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     public void AddScore(int score)
     {
-        _timer += score / 5;
+        _timer += score / 10f;
         Score += score;
+        _maxTime = Mathf.Max(_maxTime, _timer);
         _increaseScoreEvent?.Invoke(score);
     }
 

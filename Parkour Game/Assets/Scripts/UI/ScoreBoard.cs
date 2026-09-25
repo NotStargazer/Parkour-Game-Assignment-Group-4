@@ -1,23 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 
-[System.Serializable]
-public struct ScoreBoardData
-{
-    [SerializeField] public List<ScoreBoardEntry> ScoreBoardEntries;
-}
-
-[System.Serializable]
-public struct ScoreBoardEntry
-{
-    [SerializeField] public string Name;
-    [SerializeField] public int Score;
-}
 public class ScoreBoard : MonoBehaviour
 {
     [SerializeField] TMP_Text _scoreBoardEntryText;

@@ -2,43 +2,29 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static UnityEditor.GenericMenu;
 
 public class PlayerHUD : MonoBehaviour
 {
     [SerializeField] private Camera _playerCam;
     [SerializeField] private PlayerMovement _playerMovement;
-    [SerializeField] private Animation _anim;
+    [SerializeField] private Animation _animation;
     [SerializeField] private TMP_Text _scoreText;
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private TMP_Text _finalScoreText;
     [SerializeField] private Button _backToMenu;
     
-    AnimationState _timeState;
-    AnimationState _speedState;
-    AnimationState _fallState;
-    AnimationState _timeOutState;
-    AnimationState _scoreState;
-
-    //[SerializeField] Transform _mainAnchor;
-    //private float _yOffset;
-    //private float _yOffsetOriginal = 0f;
-    //[SerializeField] private float _yOffsetTop;
-    //[SerializeField] private float _yOffsetBottom;
-    //[SerializeField] private float _jumpShakeDuration;
-    //[SerializeField] private float _airHoverDuration;
-
-    //void OnEnable()
-    //{
-    //    _playerMovement.OnJump += OnJump;
-    //    _playerMovement.OnLand += OnLand;
-    //}
+    private AnimationState _timeState;
+    private AnimationState _speedState;
+    private AnimationState _fallState;
+    private AnimationState _timeOutState;
+    private AnimationState _scoreState;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
         GameManager.Instance.AddGameOverEvent(GameOverEvent);
         GameManager.Instance.AddIncreaseScoreEvent(IncreaseScoreEvent);
@@ -46,113 +32,104 @@ public class PlayerHUD : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(_inputField.text))
             {
-                GameManager.Instance.SaveScore(_inputField.text);
-                SceneManager.LoadScene("Menu");
+                StartCoroutine(WaitForAnimationToFinish("ExitGameOver", endFunction: () =>
+                {
+                    GameManager.Instance.SaveScore(_inputField.text);
+                    SceneManager.LoadScene("Menu");
+                }));
             }
         });
 
-        _speedState = _anim["PlayerSpeed"];
+        _speedState = _animation["PlayerSpeed"];
         _speedState.wrapMode = WrapMode.ClampForever;
         _speedState.speed = 0;
         _speedState.layer = 0;
 
-        _timeState = _anim["PlayerTime"];
+        _timeState = _animation["PlayerTime"];
         _timeState.wrapMode = WrapMode.ClampForever;
         _timeState.speed = 0;
         _timeState.layer = 1;
 
-        _anim.Play("PlayerSpeed");
-        _anim.Play("PlayerTime");
-
-        _scoreState = _anim["IncreaseScore"];
+        StartCoroutine(WaitForAnimationToFinish("Start", endFunction: () =>
+        {
+            _animation.Play("PlayerSpeed");
+            _animation.Play("PlayerTime");
+        }));
+        
+        _scoreState = _animation["IncreaseScore"];
         _scoreState.layer = 2;
 
-        _fallState = _anim["FallAnim"];
+        _fallState = _animation["FallAnim"];
         _fallState.layer = 5;
 
-        _timeOutState = _anim["TimeOutAnim"];
+        _timeOutState = _animation["TimeOutAnim"];
         _timeOutState.layer = 6;
 
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (GameManager.Instance.IsGameOver)
         {
             return;
         }
 
-        float _speedProgress = Mathf.InverseLerp(0, _playerMovement.MaxSpeed, _playerMovement.Speed); //change with rigidbody velocity later
-        _speedState.normalizedTime = _speedProgress;
+        float speedProgress = Mathf.InverseLerp(0, _playerMovement.MaxSpeed, _playerMovement.Speed); //change with rigidbody velocity later
+        _speedState.normalizedTime = speedProgress;
 
-        float _timeProgress = Mathf.InverseLerp(GameManager.Instance.MaxTime, 0, GameManager.Instance.Timer);
-       _timeState.normalizedTime = _timeProgress;
+        float timeProgress = Mathf.InverseLerp(GameManager.Instance.MaxTime, 0, GameManager.Instance.Timer);
+       _timeState.normalizedTime = timeProgress;
     }
     private void IncreaseScoreEvent(int score)
     {
-        // float scoreMagnitude = Mathf.InverseLerp(0, Mathf.Min(score, 50), score); //This part doesn't work unfortunately.s
-
-        _anim.Stop("IncreaseScore");
-        _anim.Play("IncreaseScore");
+        _animation.Stop("IncreaseScore");
+        _animation.Play("IncreaseScore");
         _scoreText.text = GameManager.Instance.Score.ToString();
     }
 
 
     //GAMEOVER
-    private void GameOverEvent(string DeathAnim)
+    private void GameOverEvent(string deathAnim)
     {
-        _anim.Stop("PlayerSpeed");
-        _anim.Stop("PlayerTime");
-        _anim.Play(DeathAnim);
-        _finalScoreText.SetText(GameManager.Instance.Score.ToString());
-        StartCoroutine(this.DeathAnim(DeathAnim, GameOverEnd));
-    }
-
-    IEnumerator DeathAnim(string animName, System.Action endFunction)
-    {
-        while (_anim[animName].normalizedTime < 1)
+        if (!_animation)
         {
-            yield return null;
+            return;
+        }
+        
+        _animation.Stop("PlayerSpeed");
+        _animation.Stop("PlayerTime");
+        _animation.Play(deathAnim);
+        _finalScoreText.SetText(GameManager.Instance.Score.ToString());
+        StartCoroutine(WaitForAnimationToFinish("ShowGameOver"));
+    }
+    
+    private IEnumerator WaitForAnimationToFinish(string animName, bool inverted = false, System.Action endFunction = null)
+    {
+        var eventSystem = EventSystem.current; //This establishes a reference first, by creating a variable
+        eventSystem.enabled = false; //EventSystem is the central controller for Unity's UI interaction
+        eventSystem.SetSelectedGameObject(null); //EventSystem selects objects, and that is how buttons determine their behaviors
+
+        if (inverted)
+        {
+            _animation[animName].time = _animation[animName].length;
+            _animation[animName].speed = -1f;
+        }
+        else
+        {
+            _animation[animName].time = 0f;
+            _animation[animName].speed = 1f;
         }
 
-        endFunction.Invoke();
-    }
+        _animation.Play(animName);
 
-    public void GameOverEnd()
-    {
+        while (_animation.IsPlaying(animName))
+        {
+            yield return new WaitForNextFrameUnit(); //return null doesn't wait. WaitForNextFrameUnit waits a frame
+        }
 
-    }
+        eventSystem.enabled = true;
 
-    private void OnJump()
-    {
-
-    }
-
-    private void OnLand()
-    {
-
-    }
-
-    //IEnumerator JumpShake()
-    //{
-    //    float timer = 0f;
-    //    float duration = _jumpShakeDuration;
-    //    float startvalue = _yOffsetOriginal;
-    //    float endValue = _yOffsetBottom;
-
-    //    while (Mathf.Abs(endValue - _yOffset) > 0)
-    //    {
-
-    //    }
-
-    //    y = Mathf.Lerp(y, t);
-
-    //    yield return null;
-    //}
-
-    IEnumerator AirHover()
-    {
-        yield return null;
+        endFunction?.Invoke(); // the "?" checks for null, if null don't execute the rest
     }
 }

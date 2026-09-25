@@ -11,18 +11,21 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button _scoreButton;
     [SerializeField] private Button _exitButton;
     [SerializeField] private Animation _animation;
+    [SerializeField] private Slider _mouseSensitivity;
 
     private bool _showingScore = false; // adding "_" at the beginning + camelCase for fields
 
     // I wanna trigger a looped animation when the intro finishes.
-    void Start()
+    private void Start()
     {
         _playButton.onClick.AddListener(PlayGame);
         _scoreButton.onClick.AddListener(ShowScore);
         _exitButton.onClick.AddListener(ExitGame);
+        _mouseSensitivity.SetValueWithoutNotify(GameManager.Instance.MouseSens);
+        _mouseSensitivity.onValueChanged.AddListener(v => { GameManager.Instance.MouseSens = v; });
     }
 
-    void PlayGame()
+    private void PlayGame()
     {
         StartCoroutine(WaitForAnimationToFinish("FadeExit", false, () =>
         {
@@ -31,7 +34,7 @@ public class MainMenu : MonoBehaviour
         }));
     }
 
-    void ShowScore()
+    private void ShowScore()
     {
         if (!_showingScore)
         {
@@ -40,7 +43,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    void ExitGame()
+    private void ExitGame()
     {
         if (_showingScore)
         {
@@ -59,7 +62,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    IEnumerator WaitForAnimationToFinish(string animName, bool inverted = false, System.Action endFunction = null)
+    private IEnumerator WaitForAnimationToFinish(string animName, bool inverted = false, System.Action endFunction = null)
     {
         var eventSystem = EventSystem.current; //This establishes a reference first, by creating a variable
         eventSystem.enabled = false; //EventSystem is the central controller for Unity's UI interaction

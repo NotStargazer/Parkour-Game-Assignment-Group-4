@@ -13,7 +13,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _maxSpeed = 8f;
     [SerializeField] private float _gravity = -9.81f;
     [SerializeField] private Transform _cameraTransform;
-    [SerializeField] private float _mouseSensitivity = 2f;
     [SerializeField] private float _deceleration;
     [SerializeField] private float _airControlPercentage = 2f;
     [SerializeField] private float _turnTime = 0.2f;
@@ -128,8 +127,8 @@ public class PlayerMovement : MonoBehaviour
 
         Vector2 lookInput = _controls.Player.Look.ReadValue<Vector2>();
 
-        float mouseX = lookInput.x * _mouseSensitivity * Time.deltaTime;
-        float mouseY = lookInput.y * _mouseSensitivity * Time.deltaTime;
+        float mouseX = lookInput.x * GameManager.Instance.MouseSens * Time.deltaTime;
+        float mouseY = lookInput.y * GameManager.Instance.MouseSens * Time.deltaTime;
         transform.Rotate(Vector3.up * mouseX);
 
         _xRotation -= mouseY;
