@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.GenericMenu;
 
 public class PlayerHUD : MonoBehaviour
 {
@@ -9,8 +10,9 @@ public class PlayerHUD : MonoBehaviour
     [SerializeField] private PlayerMovement _playerMovement;
     [SerializeField] private Animation _anim;
     [SerializeField] private TMP_Text _scoreText;
-    
 
+    [SerializeField] private TMP_InputField _inputField;
+    [SerializeField] private TMP_Text _finalScoreText;
     
     AnimationState _timeState;
     AnimationState _speedState;
@@ -54,7 +56,7 @@ public class PlayerHUD : MonoBehaviour
         _scoreState = _anim["IncreaseScore"];
         _scoreState.layer = 2;
 
-        _fallState = _anim["PlayerFall"];
+        _fallState = _anim["FallAnim"];
         _fallState.layer = 5;
 
         _timeOutState = _anim["PlayerTimeOut"];
@@ -69,16 +71,7 @@ public class PlayerHUD : MonoBehaviour
 
         float _timeProgress = Mathf.InverseLerp(GameManager.Instance.MaxTime, 0, GameManager.Instance.Timer);
        _timeState.normalizedTime = _timeProgress;
-
-
-        
     }
-
-    private void GameOverEvent(string reasonOfDeath)
-    {
-        _anim.Play(reasonOfDeath);
-    }
-
     private void IncreaseScoreEvent(int score)
     {
         // float scoreMagnitude = Mathf.InverseLerp(0, Mathf.Min(score, 50), score); //This part doesn't work unfortunately.s
@@ -87,6 +80,30 @@ public class PlayerHUD : MonoBehaviour
         _anim.Stop("IncreaseScore");
         _anim.Play("IncreaseScore");
         _scoreText.text = GameManager.Instance.Score.ToString();
+
+    }
+
+
+    //GAMEOVER
+    private void GameOverEvent(string reasonOfDeath)
+    {
+        _anim.Play(reasonOfDeath);
+        StartCoroutine(DeathAnim(reasonOfDeath, GameOverEnd));
+    }
+
+    IEnumerator DeathAnim(string animName, System.Action endFunction)
+    {
+        while (_anim[animName].normalizedTime < 1)
+        {
+            yield return null;
+        }
+
+        endFunction.Invoke();
+    }
+
+    public void GameOverEnd()
+    {
+
     }
 
     private void OnJump()

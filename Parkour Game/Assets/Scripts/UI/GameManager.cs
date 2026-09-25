@@ -33,10 +33,10 @@ public class GameManager : SingletonBehaviour<GameManager>
 
         //Animations
 
-        float _timeProgress = Mathf.InverseLerp(_maxTime, 0, _timer);
+        float timeProgress = Mathf.InverseLerp(_maxTime, 0, _timer);
 
-
-        if (Timer <= 0)
+        
+        if (Timer <= 0 && !_isGameOver)
         {
             _gameOverEvent?.Invoke("TimeOut"); //GameOver by timeout
         }
@@ -47,7 +47,7 @@ public class GameManager : SingletonBehaviour<GameManager>
         }
     }
 
-    void AddScore(int score)
+    public void AddScore(int score)
     {
         _timer += _timeAmount;
         Score += score;
@@ -80,4 +80,5 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         _gameOverEvent?.Invoke("PlayerFell"); //GameOver by falling
     }
+
 }
