@@ -13,7 +13,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Animation _animation;
 
     private bool _showingScore = false; // adding "_" at the beginning + camelCase for fields
-  
+
     // I wanna trigger a looped animation when the intro finishes.
     void Start()
     {
@@ -24,7 +24,11 @@ public class MainMenu : MonoBehaviour
 
     void PlayGame()
     {
-        StartCoroutine(WaitForAnimationToFinish("FadeExit", false, () => {SceneManager.LoadScene("Level");}));
+        StartCoroutine(WaitForAnimationToFinish("FadeExit", false, () =>
+        {
+            SceneManager.LoadScene("Level");
+            GameManager.Instance.StartSession();
+        }));
     }
 
     void ShowScore()
@@ -72,7 +76,7 @@ public class MainMenu : MonoBehaviour
             _animation[animName].speed = 1f;
         }
 
-        
+        _animation.Play(animName);
 
         while (_animation.IsPlaying(animName))
         {

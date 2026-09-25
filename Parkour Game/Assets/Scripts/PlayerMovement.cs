@@ -143,7 +143,6 @@ public class PlayerMovement : MonoBehaviour
         {
             _verticalVelocity = _jumpForce;
             _coyoteTimer = 0f;
-            OnJump?.Invoke();
         }
     }
     public void SetVerticalVelocity(float newVelocity)

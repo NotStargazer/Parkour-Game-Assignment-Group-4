@@ -2,6 +2,8 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static UnityEditor.GenericMenu;
 
 public class PlayerHUD : MonoBehaviour
@@ -13,6 +15,7 @@ public class PlayerHUD : MonoBehaviour
 
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private TMP_Text _finalScoreText;
+    [SerializeField] private Button _backToMenu;
     
     AnimationState _timeState;
     AnimationState _speedState;
@@ -39,6 +42,14 @@ public class PlayerHUD : MonoBehaviour
     {
         GameManager.Instance.AddGameOverEvent(GameOverEvent);
         GameManager.Instance.AddIncreaseScoreEvent(IncreaseScoreEvent);
+        _backToMenu.onClick.AddListener(() =>
+        {
+            if (!string.IsNullOrEmpty(_inputField.text))
+            {
+                GameManager.Instance.SaveScore(_inputField.text);
+                SceneManager.LoadScene("Menu");
+            }
+        });
 
         _speedState = _anim["PlayerSpeed"];
         _speedState.wrapMode = WrapMode.ClampForever;
@@ -59,13 +70,19 @@ public class PlayerHUD : MonoBehaviour
         _fallState = _anim["FallAnim"];
         _fallState.layer = 5;
 
-        _timeOutState = _anim["PlayerTimeOut"];
+        _timeOutState = _anim["TimeOutAnim"];
         _timeOutState.layer = 6;
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.Instance.IsGameOver)
+        {
+            return;
+        }
+
         float _speedProgress = Mathf.InverseLerp(0, _playerMovement.MaxSpeed, _playerMovement.Speed); //change with rigidbody velocity later
         _speedState.normalizedTime = _speedProgress;
 
@@ -76,19 +93,20 @@ public class PlayerHUD : MonoBehaviour
     {
         // float scoreMagnitude = Mathf.InverseLerp(0, Mathf.Min(score, 50), score); //This part doesn't work unfortunately.s
 
-        var clip = _anim.GetClip("IncreaseScore");
         _anim.Stop("IncreaseScore");
         _anim.Play("IncreaseScore");
         _scoreText.text = GameManager.Instance.Score.ToString();
-
     }
 
 
     //GAMEOVER
-    private void GameOverEvent(string reasonOfDeath)
+    private void GameOverEvent(string DeathAnim)
     {
-        _anim.Play(reasonOfDeath);
-        StartCoroutine(DeathAnim(reasonOfDeath, GameOverEnd));
+        _anim.Stop("PlayerSpeed");
+        _anim.Stop("PlayerTime");
+        _anim.Play(DeathAnim);
+        _finalScoreText.SetText(GameManager.Instance.Score.ToString());
+        StartCoroutine(this.DeathAnim(DeathAnim, GameOverEnd));
     }
 
     IEnumerator DeathAnim(string animName, System.Action endFunction)
