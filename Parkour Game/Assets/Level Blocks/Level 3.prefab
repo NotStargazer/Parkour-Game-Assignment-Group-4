@@ -64,6 +64,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1137257126099683382}
     m_Modifications:
+    - target: {fileID: 603035058606145627, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1019237363284306631, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
       propertyPath: m_Name
       value: Static Geometry
@@ -143,6 +147,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1137257126099683382}
     m_Modifications:
+    - target: {fileID: 603035058606145627, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1019237363284306631, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
       propertyPath: m_Name
       value: Static Geometry
@@ -300,6 +308,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1137257126099683382}
     m_Modifications:
+    - target: {fileID: 603035058606145627, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1019237363284306631, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
       propertyPath: m_Name
       value: Static Geometry
@@ -383,6 +395,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1115490432985545894}
     m_Modifications:
+    - target: {fileID: 603035058606145627, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1019237363284306631, guid: ca4714cb081f1544d88b11110b38a4b6, type: 3}
       propertyPath: m_Name
       value: Static Geometry (2)

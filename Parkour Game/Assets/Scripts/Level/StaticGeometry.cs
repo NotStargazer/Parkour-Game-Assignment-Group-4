@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using Utility;
 
 namespace Level
 {
@@ -7,6 +9,7 @@ namespace Level
         [SerializeField] private bool _isGeometry;
         [SerializeField] private MeshRenderer _renderer;
         [SerializeField] private MeshFilter _filter;
+        [ShowInLevelEditor] [SerializeField] private Material _material;
 
         public bool IsGeometry
         {
@@ -24,15 +27,26 @@ namespace Level
             get => transform.localScale;
             set => transform.localScale = value;
         }
+        public Quaternion Rotation
+        {
+            get => transform.rotation;
+            set => transform.rotation = value;
+        }
         public GameObject GameObject => gameObject;
         
         public void Spawn()
         {
             //Play some sort of animation here
         }
+        
+        public void Regenerate()
+        {
+            CreateMesh();
+        }
 
         private void Awake()
         {
+            CreateMesh();
         }
 
         private void OnValidate()
@@ -41,9 +55,22 @@ namespace Level
             {
                 _filter = gameObject.AddComponent<MeshFilter>();
             }
+            else
+            {
+                CreateMesh();
+            }
             if (!TryGetComponent(out _renderer))
             {
                 _renderer = gameObject.AddComponent<MeshRenderer>();
+            }
+        }
+
+        private void CreateMesh()
+        {
+            _filter.sharedMesh = MeshBuilder.CreateUVScaledCubeMesh(transform.localScale, "StaticGeometry");
+            if (_material)
+            {
+                _renderer.material = _material;
             }
         }
     }

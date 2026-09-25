@@ -3,16 +3,15 @@ using Utility;
 
 namespace Level
 {
-    public class Platform : MonoBehaviour, ILevelObject
+    [RequireComponent(typeof(MeshCollider))]
+    public class SlopePlatform : MonoBehaviour, ILevelObject
     {
         [SerializeField] private bool _isGeometry;
         [SerializeField] private MeshRenderer _renderer;
         [SerializeField] private MeshFilter _filter;
-        [ShowInLevelEditor] [SerializeField] private Vector3 _endOffset;
+        [ShowInLevelEditor] [SerializeField] private float _slopeThickness;
+        [ShowInLevelEditor] [SerializeField] private Material _material;
 
-        private Vector3 _start;
-        private Vector3 _end;
-        
         public bool IsGeometry
         {
             get => _isGeometry;
@@ -29,24 +28,39 @@ namespace Level
             get => transform.localScale;
             set => transform.localScale = value;
         }
+        public Quaternion Rotation
+        {
+            get => transform.rotation;
+            set => transform.rotation = value;
+        }
         public GameObject GameObject => gameObject;
-
+        
         public void Spawn()
         {
             //Play some sort of animation here
         }
 
+        public void Regenerate()
+        {
+            CreateMesh();
+        }
+        
         private void Awake()
         {
-            _start = transform.position;
-            _end = transform.position + _endOffset;
+            CreateMesh();
         }
 
         private void OnValidate()
         {
+            _slopeThickness = Mathf.Max(0.05f, _slopeThickness);
+            
             if (!TryGetComponent(out _filter))
             {
                 _filter = gameObject.AddComponent<MeshFilter>();
+            }
+            else
+            {
+                CreateMesh();
             }
             if (!TryGetComponent(out _renderer))
             {
@@ -54,12 +68,19 @@ namespace Level
             }
         }
 
-        private void OnDrawGizmos()
+        private void CreateMesh()
         {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(transform.position, transform.position + _endOffset);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireMesh(Mesh, 0, transform.position + _endOffset, transform.rotation, transform.localScale);
+            var mesh = MeshBuilder.CreateUVScaledSlopeMesh(transform.localScale, _slopeThickness, "SlopePlatform");
+            _filter.sharedMesh = mesh;
+            if (_material)
+            {
+                _renderer.material = _material;
+            }
+
+            if (TryGetComponent(out MeshCollider meshCollider))
+            {
+                meshCollider.sharedMesh = mesh;
+            }
         }
     }
 }
