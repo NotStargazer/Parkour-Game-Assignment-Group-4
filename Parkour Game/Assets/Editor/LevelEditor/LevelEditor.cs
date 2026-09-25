@@ -252,7 +252,10 @@ namespace LevelEditor
                         rot.quaternionValue = Quaternion.Euler(EditorGUILayout.Vector3Field("Rotation", rot.quaternionValue.eulerAngles));
                     }
                 }
-                _selectionTransform.ApplyModifiedProperties();
+                if (_selectionTransform.ApplyModifiedProperties())
+                {
+                    CurrentSelection.Regenerate();
+                }
                 _selectionObject.Update();
                 {
                     var iterator = _selectionObject.GetIterator();
@@ -312,7 +315,10 @@ namespace LevelEditor
                 pos.vector3Value = posVal;
                 scl.vector3Value = sclVal;
                 rot.quaternionValue = rotVal;
-                _selectionTransform.ApplyModifiedProperties();
+                if (_selectionTransform.ApplyModifiedProperties())
+                {
+                    CurrentSelection.Regenerate();
+                }
             }
             
             if (Event.current.isKey)
@@ -374,15 +380,10 @@ namespace LevelEditor
                 && Event.current.type == EventType.MouseDown
                 && _placementPoint.HasValue)
             {
-                var wasSelected = CurrentSelection != null;
                 CurrentSelection = null;
-                if (Event.current.keyCode == KeyCode.Mouse2 && !wasSelected)
+                if (Event.current.keyCode == KeyCode.Mouse2)
                 {
-                    if (!LevelEditorUtility.TrySelectGeometry(out var select))
-                    {
-
-                    }
-                    else
+                    if (LevelEditorUtility.TrySelectGeometry(out var select))
                     {
                         CurrentSelection = select;
                     }
@@ -411,6 +412,8 @@ namespace LevelEditor
                     {
                         CurrentSelection = levelObject;
                     }
+                    
+                    Event.current.Use();
                 }
             }
             

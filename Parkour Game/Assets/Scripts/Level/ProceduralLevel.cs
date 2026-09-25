@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Utility;
 using Random = UnityEngine.Random;
 
 namespace Level
@@ -12,7 +12,10 @@ namespace Level
         [SerializeField] private LevelBlock _startBlock;
         [SerializeField] private LevelBlock[] _levelBlocks;
         [SerializeField] private int _aheadBlocks;
-
+#if UNITY_EDITOR
+        [AssetSelector("/Level Blocks", "prefab")] [SerializeField]
+        private string _firstBlock;
+#endif
         private LevelGate _levelGateA;
         private LevelGate _levelGateB;
         private bool _usingBuffer;
@@ -53,9 +56,21 @@ namespace Level
             //Set up the blocks ahead of initial block
             for (var i = 0; i < _aheadBlocks; i++)
             {
-                var randomIndex = Random.Range(0, _instantiatedLevelBlocks.Count);
-                var block = _instantiatedLevelBlocks[randomIndex];
-                _instantiatedLevelBlocks.RemoveAt(randomIndex);
+                var levelIndex = 0;
+#if UNITY_EDITOR
+                if (i == 0 && _firstBlock != "None")
+                {
+                    levelIndex = _instantiatedLevelBlocks.FindIndex(p => p.name == _firstBlock);
+                }
+                else
+                {
+                    levelIndex = Random.Range(0, _instantiatedLevelBlocks.Count);
+                }
+#else
+                var levelIndex = Random.Range(0, _instantiatedLevelBlocks.Count);
+#endif
+                var block = _instantiatedLevelBlocks[levelIndex];
+                _instantiatedLevelBlocks.RemoveAt(levelIndex);
                 _currentBlocks.Enqueue(block);
                 _spawnedBlocks.Add(block);
                 block.Place(_lastEnqueued.EndGatePosition);
